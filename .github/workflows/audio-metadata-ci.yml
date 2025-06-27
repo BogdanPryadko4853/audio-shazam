@@ -44,13 +44,26 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
+    # Вариант 1: Использование системного Maven
     - name: Run tests with containers
-      run: ./mvnw verify
+      run: mvn -B verify --file pom.xml
       env:
         SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/test_db
         SPRING_DATASOURCE_USERNAME: test_user
         SPRING_DATASOURCE_PASSWORD: test_password
         SPRING_DATA_REDIS_HOST: localhost
+
+    # Вариант 2: Использование Maven Wrapper 
+    # - name: Setup Maven Wrapper
+    #   run: mvn wrapper:wrapper
+    #
+    # - name: Run tests with containers
+    #   run: ./mvnw verify
+    #   env:
+    #     SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/test_db
+    #     SPRING_DATASOURCE_USERNAME: test_user
+    #     SPRING_DATASOURCE_PASSWORD: test_password
+    #     SPRING_DATA_REDIS_HOST: localhost
 
     - name: Build Docker image
       run: docker build -t audio-metadata-service .
