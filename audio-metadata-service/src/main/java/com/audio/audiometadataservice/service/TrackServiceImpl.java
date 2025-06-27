@@ -3,6 +3,7 @@ package com.audio.audiometadataservice.service.impl;
 import com.audio.audiometadataservice.dto.TrackRequest;
 import com.audio.audiometadataservice.dto.TrackResponse;
 import com.audio.audiometadataservice.entity.Track;
+import com.audio.audiometadataservice.exception.TrackNotFoundException;
 import com.audio.audiometadataservice.mapper.TrackMapper;
 import com.audio.audiometadataservice.model.TrackCache;
 import com.audio.audiometadataservice.repository.TrackCacheRepository;
@@ -28,10 +29,9 @@ public class TrackServiceImpl implements TrackService {
     @Override
     @Cacheable(value = "tracks", key = "#id")
     public TrackResponse getTrackById(Long id) {
-        log.info("Getting track by id: {}", id);
-        Track track = trackRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Track not found with id: " + id));
-        return trackMapper.toResponse(track);
+        return trackRepository.findById(id)
+                .map(trackMapper::toResponse)
+                .orElseThrow(() -> new TrackNotFoundException("Track not found with id: " + id));
     }
 
     @Override

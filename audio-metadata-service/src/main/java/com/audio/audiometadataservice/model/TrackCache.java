@@ -2,6 +2,7 @@ package com.audio.audiometadataservice.model;
 
 import lombok.*;
 import org.springframework.data.redis.core.RedisHash;
+import org.springframework.data.redis.core.index.Indexed;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,6 +17,7 @@ public class TrackCache {
     private Long id;
     private String title;
     private String artist;
+    @Indexed
     private String audioKey;
     private String album;
     private Integer duration;

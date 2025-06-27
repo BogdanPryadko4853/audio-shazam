@@ -3,6 +3,7 @@ package com.audio.audiometadataservice.service;
 import com.audio.audiometadataservice.dto.TrackRequest;
 import com.audio.audiometadataservice.dto.TrackResponse;
 import com.audio.audiometadataservice.entity.Track;
+import com.audio.audiometadataservice.exception.TrackNotFoundException;
 import com.audio.audiometadataservice.mapper.TrackMapper;
 import com.audio.audiometadataservice.model.TrackCache;
 import com.audio.audiometadataservice.repository.TrackCacheRepository;
@@ -61,7 +62,7 @@ class TrackServiceImplTest {
         when(trackRepository.findById(TEST_ID)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(RuntimeException.class,
+        assertThrows(TrackNotFoundException.class,
                 () -> trackService.getTrackById(TEST_ID));
     }
 

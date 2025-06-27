@@ -6,8 +6,10 @@ import com.audio.audiometadataservice.entity.Track;
 import com.audio.audiometadataservice.model.TrackCache;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
+import org.springframework.stereotype.Component;
 
-@Mapper
+@Mapper(componentModel = "spring")
+@Component
 public interface TrackMapper {
     TrackMapper INSTANCE = Mappers.getMapper(TrackMapper.class);
 
