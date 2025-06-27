@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: audio-metadata-service
+
+  datasource:
+    url: jdbc:postgresql://postgres:5432/audio_metadata
+    username: audio_admin
+    password: securepass
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  data:
+    redis:
+      host: redis
+      port: 6379
+      timeout: 5000
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://service-registry:8761/eureka/
+
+server:
+  port: 8081
