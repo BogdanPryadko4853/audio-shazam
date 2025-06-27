@@ -46,7 +46,7 @@ jobs:
 
     # Вариант 1: Использование системного Maven
     - name: Run tests with containers
-      run: mvn -B verify --file pom.xml
+      run: cd audio-metadata-service && mvn -B verify
       env:
         SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/test_db
         SPRING_DATASOURCE_USERNAME: test_user
