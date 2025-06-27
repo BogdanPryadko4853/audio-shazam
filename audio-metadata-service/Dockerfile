@@ -1,9 +1,12 @@
-FROM eclipse-temurin:17-jdk-jammy as builder
-WORKDIR /app
+# Этап сборки
+FROM eclipse-temurin:17-jdk-jammy AS builder
+WORKDIR /workspace/app
 COPY . .
-RUN ./mvnw clean package -DskipTests
+RUN chmod +x mvnw && ./mvnw clean package -DskipTests
 
+# Этап выполнения
 FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
-COPY --from=builder /app/target/*.jar app.jar
+COPY --from=builder /workspace/app/target/*.jar app.jar
+EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
