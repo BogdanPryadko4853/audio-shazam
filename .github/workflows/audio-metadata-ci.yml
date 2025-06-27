@@ -66,4 +66,4 @@ jobs:
     #     SPRING_DATA_REDIS_HOST: localhost
 
     - name: Build Docker image
-      run: docker build -t audio-metadata-service .
+      run: cd audio-metadata-service && docker build -t audio-metadata-service .
