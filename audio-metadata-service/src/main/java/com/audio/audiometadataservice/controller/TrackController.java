@@ -1,7 +1,8 @@
 package com.audio.audiometadataservice.controller;
 
-import com.audio.audiometadataservice.entity.Track;
-import com.audio.audiometadataservice.service.TrackServiceImpl;
+import com.audio.audiometadataservice.dto.TrackRequest;
+import com.audio.audiometadataservice.dto.TrackResponse;
+import com.audio.audiometadataservice.service.TrackService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -12,17 +13,17 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/tracks")
 @RequiredArgsConstructor
 public class TrackController {
-    private final TrackServiceImpl trackService;
+    private final TrackService trackService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<Track> getTrack(@PathVariable Long id) {
+    public ResponseEntity<TrackResponse> getTrack(@PathVariable Long id) {
         return ResponseEntity.ok(trackService.getTrackById(id));
     }
 
     @PostMapping
-    public ResponseEntity<Track> createTrack(@RequestBody @Valid Track track) {
+    public ResponseEntity<TrackResponse> createTrack(@RequestBody @Valid TrackRequest trackRequest) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(trackService.createTrack(track));
+                .body(trackService.createTrack(trackRequest));
     }
 
     @DeleteMapping("/{id}")
