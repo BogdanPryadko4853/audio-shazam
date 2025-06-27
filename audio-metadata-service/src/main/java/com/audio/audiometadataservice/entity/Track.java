@@ -3,7 +3,6 @@ package com.audio.audiometadataservice.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-import org.springframework.data.redis.core.RedisHash;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -15,7 +14,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@RedisHash("Track")
 public class Track {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,7 +26,7 @@ public class Track {
     private String artist;
 
     @Column(nullable = false, unique = true)
-    private String audioKey;  // S3/MinIO ключ
+    private String audioKey;
 
     private String album;
     private Integer duration;
