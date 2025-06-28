@@ -1,0 +1,82 @@
+name: Audio Ingestion Service CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  DOCKER_IMAGE_NAME: audio-ingestion-service
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Start Zookeeper
+      run: |
+        docker run -d --name zookeeper \
+          -p 2181:2181 \
+          -e ZOOKEEPER_CLIENT_PORT=2181 \
+          -e ZOOKEEPER_TICK_TIME=2000 \
+          confluentinc/cp-zookeeper:7.3.0
+
+    - name: Start Kafka
+      run: |
+        docker run -d --name kafka \
+          -p 9092:9092 \
+          -e KAFKA_BROKER_ID=1 \
+          -e KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181 \
+          -e KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT \
+          -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092 \
+          -e KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1 \
+          -e KAFKA_AUTO_CREATE_TOPICS_ENABLE=true \
+          --link zookeeper:zookeeper \
+          confluentinc/cp-kafka:7.3.0
+
+    - name: Start MinIO
+      run: |
+        docker run -d --name minio \
+          -p 9000:9000 \
+          -p 9001:9001 \
+          -e MINIO_ROOT_USER=minioadmin \
+          -e MINIO_ROOT_PASSWORD=minioadmin \
+          minio/minio server /data --console-address ":9001"
+
+    - name: Wait for services
+      run: |
+        echo "Waiting for services to start..."
+        sleep 30
+        docker ps -a
+        docker logs kafka || true
+        docker logs minio || true
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: 'maven'
+
+    - name: Run tests with Maven
+      run: cd audio-ingestion-service && mvn clean verify
+      env:
+        SPRING_KAFKA_BOOTSTRAP_SERVERS: localhost:9092
+        MINIO_ENDPOINT: http://localhost:9000
+        MINIO_ACCESS_KEY: minioadmin
+        MINIO_SECRET_KEY: minioadmin
+        TESTCONTAINERS_RYUK_DISABLED: true
+
+    - name: Build Docker image
+      run: |
+        cd audio-ingestion-service
+        docker build -t $DOCKER_IMAGE_NAME .
+
+    - name: Clean up
+      if: always()
+      run: |
+        docker stop kafka minio zookeeper || true
+        docker rm kafka minio zookeeper || true
