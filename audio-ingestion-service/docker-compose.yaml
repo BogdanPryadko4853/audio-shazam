@@ -1,7 +1,22 @@
 version: '3.8'
 
 services:
-  # Существующие сервисы
+  audio-ingestion:
+    build: ./audio-ingestion-service
+    ports:
+      - "8082:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      MINIO_ENDPOINT: http://minio:9000
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    depends_on:
+      - minio
+      - kafka
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
   minio:
     image: minio/minio
     ports:
