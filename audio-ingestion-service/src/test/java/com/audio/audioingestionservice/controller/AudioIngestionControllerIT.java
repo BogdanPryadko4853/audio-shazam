@@ -43,6 +43,14 @@ class AudioIngestionControllerIT {
         registry.add("spring.kafka.bootstrap-servers", kafka::getBootstrapServers);
     }
 
+    @DynamicPropertySource
+    static void minioProperties(DynamicPropertyRegistry registry) {
+        registry.add("minio.endpoint", () -> "http://localhost:9000");
+        registry.add("minio.access-key", () -> "test-access-key");
+        registry.add("minio.secret-key", () -> "test-secret-key");
+        registry.add("minio.bucket-name", () -> "test-bucket");
+    }
+
     @Autowired
     private TestRestTemplate restTemplate;
 
