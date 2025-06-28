@@ -1,7 +1,11 @@
 spring:
   application:
     name: audio-ingestion-service
-
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 minio:
   endpoint: http://localhost:9000
   access-key: minioadmin
