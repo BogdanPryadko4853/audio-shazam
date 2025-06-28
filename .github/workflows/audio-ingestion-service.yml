@@ -13,6 +13,14 @@ jobs:
   test-and-build:
     runs-on: ubuntu-latest
     services:
+      zookeeper:
+        image: confluentinc/cp-zookeeper:7.3.0
+        ports:
+          - 2181:2181
+        env:
+          ZOOKEEPER_CLIENT_PORT: 2181
+          ZOOKEEPER_TICK_TIME: 2000
+
       kafka:
         image: confluentinc/cp-kafka:7.3.0
         ports:
@@ -20,14 +28,10 @@ jobs:
         env:
           KAFKA_BROKER_ID: 1
           KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+          KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
           KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
           KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
           KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
-        options: >-
-          --health-cmd "nc -z localhost 9092 || exit 1"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
 
       minio:
         image: minio/minio
@@ -37,15 +41,23 @@ jobs:
         ports:
           - 9000:9000
           - 9001:9001
-
-        options: >-
-          --health-cmd "curl -f http://localhost:9000/minio/health/live || exit 1"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+        # Альтернатива command с использованием args
+        entrypoint: /bin/sh
+        args: -c "minio server /data --console-address :9001"
 
     steps:
     - uses: actions/checkout@v3
+
+    - name: Wait for services to initialize
+      run: |
+        echo "Waiting for services to start..."
+        sleep 30
+        echo "Checking services status..."
+        docker ps -a
+        echo "Kafka logs:"
+        docker logs $(docker ps -qf "name=kafka") || true
+        echo "MinIO logs:"
+        docker logs $(docker ps -qf "name=minio") || true
 
     - name: Set up JDK 17
       uses: actions/setup-java@v3
