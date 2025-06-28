@@ -1,11 +1,21 @@
 spring:
-  application:
-    name: audio-ingestion-service
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: kafka:9092
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        acks: all
+        retries: 3
+        delivery.timeout.ms: 30000
+    consumer:
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+
+kafka:
+  topics:
+    audio-uploads: audio-uploads
+
 minio:
   endpoint: http://localhost:9000
   access-key: minioadmin
