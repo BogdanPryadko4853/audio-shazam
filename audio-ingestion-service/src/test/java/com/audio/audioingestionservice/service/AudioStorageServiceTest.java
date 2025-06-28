@@ -1,12 +1,14 @@
 package com.audio.audioingestionservice.service;
 
 import io.minio.MinioClient;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -22,6 +24,11 @@ class AudioStorageServiceTest {
 
     @InjectMocks
     private AudioStorageService storageService;
+
+    @BeforeEach
+    void setUp() {
+        ReflectionTestUtils.setField(storageService, "bucket", "test-bucket");
+    }
 
     @Test
     void shouldUploadAudio() throws Exception {
