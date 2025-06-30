@@ -1,4 +1,9 @@
 package com.audio.audiofingerprintservice.repository;
 
-public interface FingerprintHashRepository {
+import com.audio.audiofingerprintservice.entity.FingerprintHash;
+import org.springframework.data.repository.CrudRepository;
+
+public interface FingerprintHashRepository extends CrudRepository<FingerprintHash, String> {
+
 }
+

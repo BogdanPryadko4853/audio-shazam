@@ -3,14 +3,18 @@ spring:
     name: audio-metadata-service
 
   datasource:
-    url: jdbc:postgresql://postgres:5432/audio_metadata
+    url: jdbc:postgresql://db:5432/audio_metadata
     username: audio_admin
     password: securepass
     driver-class-name: org.postgresql.Driver
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
+    hikari:
+      connection-timeout: 30000
+      initialization-fail-timeout: 0
+    jpa:
+      database-platform: org.hibernate.dialect.PostgreSQLDialect
+      hibernate:
+        ddl-auto: update
+      show-sql: true
   data:
     redis:
       host: redis

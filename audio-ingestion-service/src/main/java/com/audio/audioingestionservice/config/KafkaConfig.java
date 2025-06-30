@@ -1,5 +1,6 @@
 package com.audio.audioingestionservice.config;
 
+import com.audio.audioingestionservice.model.AudioUploadEvent;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ser.std.StringSerializer;
 import org.apache.kafka.clients.admin.NewTopic;
@@ -16,7 +17,6 @@ import org.springframework.kafka.core.ProducerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
-
 @Configuration
 @EnableKafka
 @Profile("!test")
@@ -34,7 +34,7 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ProducerFactory<String, Object> producerFactory() {
+    public ProducerFactory<String, AudioUploadEvent> producerFactory() {
         Map<String, Object> config = new HashMap<>();
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -43,7 +43,7 @@ public class KafkaConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, Object> kafkaTemplate() {
+    public KafkaTemplate<String, AudioUploadEvent> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
 }

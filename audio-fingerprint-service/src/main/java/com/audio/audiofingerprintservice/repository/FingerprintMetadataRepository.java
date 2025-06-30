@@ -1,4 +1,9 @@
 package com.audio.audiofingerprintservice.repository;
 
-public class FingerprintMetadataRepository {
+import com.audio.audiofingerprintservice.entity.FingerprintMetadata;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+
+public interface FingerprintMetadataRepository extends JpaRepository<FingerprintMetadata, String> {
+
 }

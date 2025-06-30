@@ -15,10 +15,11 @@ spring:
 kafka:
   topics:
     audio-uploads: audio-uploads
-
 minio:
   endpoint: http://localhost:9000
   access-key: minioadmin
   secret-key: minioadmin
   bucket: audio-bucket
   secure: false
+server:
+  port: 8000

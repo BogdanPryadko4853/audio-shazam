@@ -7,6 +7,11 @@
           <package value="com.audio.audiometadataservice" />
         </packages>
       </persistence-unit>
+      <persistence-unit moduleName="audio-fingerprint-service" name="Default">
+        <packages>
+          <package value="com.audio.audiofingerprintservice" />
+        </packages>
+      </persistence-unit>
     </persistence-units>
   </component>
 </project>
