@@ -1,45 +1,63 @@
 package com.audio.audiofingerprintservice.service;
 
-import com.audio.audiofingerprintservice.model.FingerprintProcessedEvent;
+import com.audio.audiofingerprintservice.model.AudioUploadEvent;
 import com.audio.audiofingerprintservice.model.entity.FingerprintHash;
 import com.audio.audiofingerprintservice.model.entity.FingerprintMetadata;
 import com.audio.audiofingerprintservice.repository.FingerprintHashRepository;
 import com.audio.audiofingerprintservice.repository.FingerprintMetadataRepository;
+import io.minio.GetObjectArgs;
+import io.minio.MinioClient;
 import lombok.RequiredArgsConstructor;
-import org.springframework.kafka.core.KafkaTemplate;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
+import java.io.InputStream;
 import java.time.Instant;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class FingerprintService {
-    private final AudioProcessor audioProcessor;
+    private final MinioClient minioClient;
     private final FingerprintGenerator fingerprintGenerator;
     private final FingerprintHashRepository hashRepository;
     private final FingerprintMetadataRepository metadataRepository;
-    private final KafkaTemplate<String, FingerprintProcessedEvent> kafkaTemplate;
 
-    @Transactional
-    public void processAudio(String audioId, String s3Path) throws Exception {
-        byte[] audioData = audioProcessor.downloadAudio(s3Path);
+    @Value("${minio.bucket}")
+    private String bucket;
 
-        String fingerprintHash = fingerprintGenerator.generateFingerprint(audioData);
+    public void processAudioUpload(AudioUploadEvent event) {
+        try {
+            byte[] audioData = downloadAudio(event.getS3Key());
 
-        hashRepository.save(new FingerprintHash(
-                audioId,
-                fingerprintHash,
-                Instant.now()
-        ));
+            String fingerprint = fingerprintGenerator.generate(audioData);
 
-        metadataRepository.save(new FingerprintMetadata(audioId));
+            hashRepository.save(new FingerprintHash(
+                    event.getEventId(),
+                    fingerprint,
+                    Instant.now()
+            ));
 
-        kafkaTemplate.send("fingerprint-processed",
-                new FingerprintProcessedEvent(
-                        audioId,
-                        fingerprintHash,
-                        Instant.now()
-                ));
+            FingerprintMetadata metadata = new FingerprintMetadata(event.getEventId());
+            metadata.setTrackTitle("Unknown");
+            metadata.setArtist("Unknown");
+            metadataRepository.save(metadata);
+
+            log.info("Processed audio: {}", event.getEventId());
+        } catch (Exception e) {
+            log.error("Error processing audio: {}", event.getEventId(), e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    private byte[] downloadAudio(String s3Key) throws Exception {
+        try (InputStream stream = minioClient.getObject(
+                GetObjectArgs.builder()
+                        .bucket(bucket)
+                        .object(s3Key)
+                        .build())) {
+            return stream.readAllBytes();
+        }
     }
 }

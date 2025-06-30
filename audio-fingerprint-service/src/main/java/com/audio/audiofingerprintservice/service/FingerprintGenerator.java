@@ -4,6 +4,7 @@ import com.audio.audiofingerprintservice.config.AppConfig;
 import com.audio.audiofingerprintservice.model.Peak;
 import com.google.common.hash.Hashing;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.transform.FastFourierTransformer;
 import org.springframework.stereotype.Service;
@@ -20,24 +21,30 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class FingerprintGenerator {
     private final AppConfig appConfig;
 
-    public String generateFingerprint(byte[] audioData) {
+    public String generate(byte[] audioData) {
+        try {
 
-        double[] samples = convertToSamples(audioData);
+            double[] samples = convertToSamples(audioData);
 
-        List<double[]> frames = createFrames(samples);
+            List<double[]> frames = createFrames(samples);
 
-        List<Peak> peaks = extractPeaks(frames);
+            List<Peak> peaks = extractPeaks(frames);
 
-        return generateHash(peaks);
+            return generateHash(peaks);
+        } catch (Exception e) {
+            log.error("Error generating fingerprint", e);
+            throw new RuntimeException(e);
+        }
     }
 
     private double[] convertToSamples(byte[] audioBytes) {
         double[] samples = new double[audioBytes.length / 2];
         for (int i = 0; i < samples.length; i++) {
-            short sample = (short)((audioBytes[2*i+1] << 8) | (audioBytes[2*i] & 0xFF));
+            short sample = (short) ((audioBytes[2 * i + 1] << 8) | (audioBytes[2 * i] & 0xFF));
             samples[i] = sample / 32768.0;
         }
         return samples;
