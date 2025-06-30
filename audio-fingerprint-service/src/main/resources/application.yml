@@ -12,9 +12,6 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-  redis:
-    host: localhost
-    port: 6379
   kafka:
     bootstrap-servers: localhost:9092
     consumer:
@@ -22,6 +19,10 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+  data:
+    redis:
+      host: localhost
+      port: 6379
 
 minio:
   endpoint: http://localhost:9000
