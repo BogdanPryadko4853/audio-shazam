@@ -3,12 +3,13 @@ package com.audio.audioingestionservice.service;
 import com.audio.audioingestionservice.model.AudioUploadEvent;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.core.KafkaTemplate;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 
@@ -23,11 +24,18 @@ class AudioEventProducerTest {
     private AudioEventProducer eventProducer;
 
     @Test
-    void shouldSendAudioUploadEvent() {
+    void shouldSendCompleteAudioUploadEvent() {
         // Act
-        eventProducer.sendAudioUploadEvent("test-key");
+        eventProducer.sendAudioUploadEvent("track-123", "sources/test.mp3", "Test", "Artist");
 
         // Assert
-        verify(kafkaTemplate).send(eq("audio-uploads"), any(AudioUploadEvent.class));
+        ArgumentCaptor<AudioUploadEvent> eventCaptor = ArgumentCaptor.forClass(AudioUploadEvent.class);
+        verify(kafkaTemplate).send(eq("audio-uploads"), eventCaptor.capture());
+
+        AudioUploadEvent event = eventCaptor.getValue();
+        assertThat(event.getTrackId()).isEqualTo("track-123");
+        assertThat(event.getS3Key()).isEqualTo("sources/test.mp3");
+        assertThat(event.getTitle()).isEqualTo("Test");
+        assertThat(event.getArtist()).isEqualTo("Artist");
     }
 }

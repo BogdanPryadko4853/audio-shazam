@@ -1,5 +1,6 @@
 package com.audio.audioingestionservice.config;
 
+import com.audio.audioingestionservice.controller.MetadataServiceClient;
 import com.audio.audioingestionservice.model.AudioUploadEvent;
 import com.audio.audioingestionservice.service.AudioStorageService;
 import io.minio.MinioClient;
@@ -78,5 +79,11 @@ public class TestConfig {
     @Bean
     public TestRestTemplate testRestTemplate() {
         return new TestRestTemplate();
+    }
+
+    @Bean
+    @Primary
+    public MetadataServiceClient metadataServiceClient() {
+        return mock(MetadataServiceClient.class);
     }
 }

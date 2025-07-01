@@ -11,18 +11,17 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class AudioEventProducer {
-    private static final String TOPIC = "audio-uploads";
-
     private final KafkaTemplate<String, AudioUploadEvent> kafkaTemplate;
 
-    public void sendAudioUploadEvent(String s3Key) {
+    public void sendAudioUploadEvent(String trackId, String s3Key, String title, String artist) {
         AudioUploadEvent event = new AudioUploadEvent(
-                UUID.randomUUID().toString(),
+                trackId,
                 s3Key,
+                title,
+                artist,
                 Instant.now()
         );
-
-        kafkaTemplate.send(TOPIC, event);
+        kafkaTemplate.send("audio-uploads", event);
     }
 }
 

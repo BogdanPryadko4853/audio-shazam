@@ -8,7 +8,9 @@ import java.time.Instant;
 @Data
 @AllArgsConstructor
 public class AudioUploadEvent {
-    private String eventId;
+    private String trackId;
     private String s3Key;
+    private String title;
+    private String artist;
     private Instant timestamp;
 }

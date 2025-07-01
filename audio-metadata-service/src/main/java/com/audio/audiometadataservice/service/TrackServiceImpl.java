@@ -1,4 +1,4 @@
-package com.audio.audiometadataservice.service.impl;
+package com.audio.audiometadataservice.service;
 
 import com.audio.audiometadataservice.dto.TrackRequest;
 import com.audio.audiometadataservice.dto.TrackResponse;
@@ -8,7 +8,6 @@ import com.audio.audiometadataservice.mapper.TrackMapper;
 import com.audio.audiometadataservice.model.TrackCache;
 import com.audio.audiometadataservice.repository.TrackCacheRepository;
 import com.audio.audiometadataservice.repository.TrackRepository;
-import com.audio.audiometadataservice.service.TrackService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
