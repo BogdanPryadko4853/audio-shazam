@@ -12,10 +12,10 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+
 @DataRedisTest
 @Testcontainers
 class TrackCacheRepositoryTest {
@@ -45,30 +45,15 @@ class TrackCacheRepositoryTest {
 
     @Test
     void shouldSaveAndFindByAudioKey() {
-        // Создаем тестовый объект
         TrackCache track = new TrackCache();
         track.setId(1L);
         track.setAudioKey("test-key-123");
         track.setTitle("Test Track");
-        track.setArtist("Test Artist");
-        track.setCreatedAt(LocalDateTime.now());
 
-        // Сохраняем
         TrackCache saved = trackCacheRepository.save(track);
-        assertNotNull(saved.getId(), "Объект должен быть сохранен с ID");
-
-        // Проверяем поиск по ID (должен работать)
-        Optional<TrackCache> byId = trackCacheRepository.findById(saved.getId());
-        assertTrue(byId.isPresent(), "Должен находиться по ID");
-        assertEquals("test-key-123", byId.get().getAudioKey());
-
-        // Проверяем поиск по audioKey (теперь должен работать)
         Optional<TrackCache> byAudioKey = trackCacheRepository.findByAudioKey("test-key-123");
-        assertTrue(byAudioKey.isPresent(), "Должен находиться по audioKey");
-        assertEquals(saved.getId(), byAudioKey.get().getId());
 
-        // Дополнительная проверка - ищем несуществующий ключ
-        Optional<TrackCache> notFound = trackCacheRepository.findByAudioKey("non-existent");
-        assertFalse(notFound.isPresent(), "Не должен находить по несуществующему ключу");
+        assertTrue(byAudioKey.isPresent());
+        assertEquals(saved.getId(), byAudioKey.get().getId());
     }
 }

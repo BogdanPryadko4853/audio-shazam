@@ -1,4 +1,4 @@
-package com.audio.audiometadataservice.dto;
+package com.audio.audioingestionservice.dto;
 
 import lombok.*;
 
@@ -7,10 +7,10 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TrackResponse {
-    private Long id;
+public class TrackRequest {
     private String title;
     private String artist;
-    private String audioUrl;
     private Integer duration;
+    private String audioKey;
 }
+

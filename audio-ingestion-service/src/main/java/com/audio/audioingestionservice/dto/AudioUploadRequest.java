@@ -8,6 +8,5 @@ public class AudioUploadRequest {
     private MultipartFile file;
     private String title;
     private String artist;
-    private String album;
     private Integer duration;
 }

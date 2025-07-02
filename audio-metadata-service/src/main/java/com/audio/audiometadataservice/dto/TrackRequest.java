@@ -3,8 +3,6 @@ package com.audio.audiometadataservice.dto;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
-import java.time.LocalDate;
-
 @Getter
 @Setter
 @NoArgsConstructor
@@ -17,10 +15,8 @@ public class TrackRequest {
     @NotBlank
     private String artist;
 
-    @NotBlank
-    private String audioKey;
-
     private String album;
     private Integer duration;
-    private LocalDate releaseDate;
+    @NotBlank
+    private String audioKey;
 }

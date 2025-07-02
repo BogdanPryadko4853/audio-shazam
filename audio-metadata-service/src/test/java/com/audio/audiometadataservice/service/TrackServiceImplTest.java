@@ -4,9 +4,6 @@ import com.audio.audiometadataservice.dto.TrackRequest;
 import com.audio.audiometadataservice.dto.TrackResponse;
 import com.audio.audiometadataservice.entity.Track;
 import com.audio.audiometadataservice.exception.TrackNotFoundException;
-import com.audio.audiometadataservice.mapper.TrackMapper;
-import com.audio.audiometadataservice.model.TrackCache;
-import com.audio.audiometadataservice.repository.TrackCacheRepository;
 import com.audio.audiometadataservice.repository.TrackRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,8 +11,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -27,16 +22,16 @@ class TrackServiceImplTest {
 
     @Mock
     private TrackRepository trackRepository;
+
     @Mock
-    private TrackCacheRepository trackCacheRepository;
-    @Mock
-    private TrackMapper trackMapper;
+    private MinioService minioService;
 
     @InjectMocks
-    private com.audio.audiometadataservice.service.impl.TrackServiceImpl trackService;
+    private TrackServiceImpl trackService;
 
     private final Long TEST_ID = 1L;
     private final String TEST_AUDIO_KEY = "test-key";
+    private final String PRESIGNED_URL = "http://presigned.url/test";
 
     @Test
     void getTrackById_ShouldReturnTrack_WhenExists() {
@@ -45,15 +40,18 @@ class TrackServiceImplTest {
         TrackResponse expectedResponse = createTestResponse();
 
         when(trackRepository.findById(TEST_ID)).thenReturn(Optional.of(track));
-        when(trackMapper.toResponse(track)).thenReturn(expectedResponse);
+        when(minioService.generatePresignedUrl(TEST_AUDIO_KEY)).thenReturn(PRESIGNED_URL);
 
         // Act
         TrackResponse result = trackService.getTrackById(TEST_ID);
 
         // Assert
+        assertNotNull(result);
         assertEquals(TEST_ID, result.getId());
+        assertEquals("Test Track", result.getTitle());
+        assertEquals(PRESIGNED_URL, result.getAudioUrl());
         verify(trackRepository).findById(TEST_ID);
-        verify(trackMapper).toResponse(track);
+        verify(minioService).generatePresignedUrl(TEST_AUDIO_KEY);
     }
 
     @Test
@@ -62,85 +60,72 @@ class TrackServiceImplTest {
         when(trackRepository.findById(TEST_ID)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(TrackNotFoundException.class,
-                () -> trackService.getTrackById(TEST_ID));
+        assertThrows(TrackNotFoundException.class, () ->
+                trackService.getTrackById(TEST_ID));
     }
 
     @Test
     void createTrack_ShouldSaveAndReturnTrack() {
         // Arrange
         TrackRequest request = createTestRequest();
-        Track track = createTestTrack();
         Track savedTrack = createTestTrack();
-        TrackResponse expectedResponse = createTestResponse();
 
-        when(trackMapper.toEntity(request)).thenReturn(track);
-        when(trackRepository.save(track)).thenReturn(savedTrack);
-        when(trackMapper.toResponse(savedTrack)).thenReturn(expectedResponse);
-        when(trackMapper.toCache(savedTrack)).thenReturn(new TrackCache());
+        when(trackRepository.save(any(Track.class))).thenReturn(savedTrack);
+        when(minioService.generatePresignedUrl(TEST_AUDIO_KEY)).thenReturn(PRESIGNED_URL);
 
         // Act
         TrackResponse result = trackService.createTrack(request);
 
         // Assert
         assertNotNull(result);
-        verify(trackRepository).save(track);
-        verify(trackCacheRepository).save(any(TrackCache.class));
+        assertEquals(TEST_ID, result.getId());
+        assertEquals("Test Track", result.getTitle());
+        assertEquals(PRESIGNED_URL, result.getAudioUrl());
+        verify(trackRepository).save(any(Track.class));
+        verify(minioService).generatePresignedUrl(TEST_AUDIO_KEY);
     }
 
     @Test
-    void deleteTrack_ShouldDeleteFromBothRepositories() {
+    void deleteTrack_ShouldDeleteTrack() {
         // Arrange
         doNothing().when(trackRepository).deleteById(TEST_ID);
-        doNothing().when(trackCacheRepository).deleteById(TEST_ID);
 
         // Act
         trackService.deleteTrack(TEST_ID);
 
         // Assert
         verify(trackRepository).deleteById(TEST_ID);
-        verify(trackCacheRepository).deleteById(TEST_ID);
     }
 
     @Test
-    void findByAudioKey_ShouldReturnFromCache_WhenExists() {
-        // Arrange
-        TrackCache cachedTrack = new TrackCache();
-        cachedTrack.setId(TEST_ID);
-        TrackResponse expectedResponse = createTestResponse();
-
-        when(trackCacheRepository.findByAudioKey(TEST_AUDIO_KEY))
-                .thenReturn(Optional.of(cachedTrack));
-        when(trackMapper.toResponse(cachedTrack)).thenReturn(expectedResponse);
-
-        // Act
-        TrackResponse result = trackService.findByAudioKey(TEST_AUDIO_KEY);
-
-        // Assert
-        assertEquals(TEST_ID, result.getId());
-        verify(trackCacheRepository).findByAudioKey(TEST_AUDIO_KEY);
-        verifyNoInteractions(trackRepository);
-    }
-
-    @Test
-    void findByAudioKey_ShouldFetchFromDbAndCache_WhenNotInCache() {
+    void findByAudioKey_ShouldReturnTrack_WhenExists() {
         // Arrange
         Track track = createTestTrack();
-        TrackResponse expectedResponse = createTestResponse();
 
-        when(trackCacheRepository.findByAudioKey(TEST_AUDIO_KEY))
-                .thenReturn(Optional.empty());
         when(trackRepository.findByAudioKey(TEST_AUDIO_KEY))
                 .thenReturn(Optional.of(track));
-        when(trackMapper.toResponse(track)).thenReturn(expectedResponse);
-        when(trackMapper.toCache(track)).thenReturn(new TrackCache());
+        when(minioService.generatePresignedUrl(TEST_AUDIO_KEY)).thenReturn(PRESIGNED_URL);
 
         // Act
         TrackResponse result = trackService.findByAudioKey(TEST_AUDIO_KEY);
 
         // Assert
         assertEquals(TEST_ID, result.getId());
-        verify(trackCacheRepository).save(any(TrackCache.class));
+        assertEquals("Test Track", result.getTitle());
+        assertEquals(PRESIGNED_URL, result.getAudioUrl());
+        verify(trackRepository).findByAudioKey(TEST_AUDIO_KEY);
+        verify(minioService).generatePresignedUrl(TEST_AUDIO_KEY);
+    }
+
+    @Test
+    void findByAudioKey_ShouldThrow_WhenNotFound() {
+        // Arrange
+        when(trackRepository.findByAudioKey(TEST_AUDIO_KEY))
+                .thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(TrackNotFoundException.class, () ->
+                trackService.findByAudioKey(TEST_AUDIO_KEY));
     }
 
     private TrackRequest createTestRequest() {
@@ -148,20 +133,18 @@ class TrackServiceImplTest {
                 .title("Test Track")
                 .artist("Test Artist")
                 .audioKey(TEST_AUDIO_KEY)
-                .album("Test Album")
                 .duration(180)
-                .releaseDate(LocalDate.now())
                 .build();
     }
 
     private Track createTestTrack() {
-        Track track = new Track();
-        track.setId(TEST_ID);
-        track.setTitle("Test Track");
-        track.setArtist("Test Artist");
-        track.setAudioKey(TEST_AUDIO_KEY);
-        track.setCreatedAt(LocalDateTime.now());
-        return track;
+        return Track.builder()
+                .id(TEST_ID)
+                .title("Test Track")
+                .artist("Test Artist")
+                .audioKey(TEST_AUDIO_KEY)
+                .duration(180)
+                .build();
     }
 
     private TrackResponse createTestResponse() {
@@ -169,8 +152,8 @@ class TrackServiceImplTest {
                 .id(TEST_ID)
                 .title("Test Track")
                 .artist("Test Artist")
-                .audioKey(TEST_AUDIO_KEY)
-                .createdAt(LocalDateTime.now())
+                .duration(180)
+                .audioUrl(PRESIGNED_URL)
                 .build();
     }
 }

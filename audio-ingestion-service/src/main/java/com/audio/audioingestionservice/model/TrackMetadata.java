@@ -16,6 +16,5 @@ public class TrackMetadata {
     private String title;
     private String artist;
     private Integer duration;
-    private String audioPath;
-    private LocalDateTime createdAt;
+    private String audioUrl;
 }

@@ -28,15 +28,12 @@ class TrackControllerTest {
     private final Long TEST_ID = 1L;
 
     @Test
-    void getTrack_ShouldReturnOk_WhenExists() {
-        // Arrange
+    void getTrackByAudioKey_ShouldReturnOk() {
         TrackResponse response = new TrackResponse();
-        when(trackService.getTrackById(TEST_ID)).thenReturn(response);
+        when(trackService.findByAudioKey("test-key")).thenReturn(response);
 
-        // Act
-        ResponseEntity<TrackResponse> result = trackController.getTrack(TEST_ID);
+        ResponseEntity<TrackResponse> result = trackController.getTrackByAudioKey("test-key");
 
-        // Assert
         assertEquals(HttpStatus.OK, result.getStatusCode());
         assertEquals(response, result.getBody());
     }

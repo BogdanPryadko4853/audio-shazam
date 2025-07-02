@@ -1,6 +1,7 @@
 package com.audio.audioingestionservice.controller;
 
 import com.audio.audioingestionservice.dto.AudioUploadResponse;
+import com.audio.audioingestionservice.dto.TrackRequest;
 import com.audio.audioingestionservice.model.TrackMetadata;
 import com.audio.audioingestionservice.service.AudioEventProducer;
 import com.audio.audioingestionservice.service.AudioStorageService;
@@ -17,13 +18,10 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.multipart.MultipartFile;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
-
-import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -73,15 +71,16 @@ class AudioIngestionControllerIT {
         // Arrange
         when(storageService.uploadAudio(any())).thenReturn("sources/test-key.mp3");
 
-        when(metadataClient.createTrack(any(), any(), any(), any(), any()))
-                .thenReturn(TrackMetadata.builder()
-                        .id("track-123")
-                        .title("Test Song")
-                        .artist("Artist")
-                        .duration(180)
-                        .audioPath("sources/test-key.mp3")
-                        .createdAt(LocalDateTime.now())
-                        .build());
+        TrackMetadata mockMetadata = TrackMetadata.builder()
+                .id("track-123")
+                .title("Test Song")
+                .artist("Artist")
+                .duration(180)
+                .audioUrl("sources/test-key.mp3")
+                .build();
+
+        when(metadataClient.createTrack(any(TrackRequest.class)))
+                .thenReturn(mockMetadata);
 
         MockMultipartFile file = new MockMultipartFile(
                 "file", "test.mp3", "audio/mpeg", "content".getBytes());
@@ -110,7 +109,7 @@ class AudioIngestionControllerIT {
         // Assert
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         verify(storageService).uploadAudio(any());
-        verify(metadataClient).createTrack(eq("Test Song"), eq("Artist"), eq(null), eq(180), eq("sources/test-key.mp3"));
-        verify(eventProducer).sendAudioUploadEvent(eq("track-123"), eq("sources/test-key.mp3"), eq("Test Song"), eq("Artist"));
+        verify(metadataClient).createTrack(any(TrackRequest.class));
+        verify(eventProducer).sendAudioUploadEvent("track-123", "sources/test-key.mp3", "Test Song", "Artist");
     }
 }

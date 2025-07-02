@@ -15,15 +15,22 @@ import org.springframework.web.bind.annotation.*;
 public class TrackController {
     private final TrackService trackService;
 
+    @PostMapping
+    public ResponseEntity<TrackResponse> createTrack(
+            @RequestBody @Valid TrackRequest trackRequest) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(trackService.createTrack(trackRequest));
+    }
+
+    @GetMapping("/by-key")
+    public ResponseEntity<TrackResponse> getTrackByAudioKey(
+            @RequestParam String audioKey) {
+        return ResponseEntity.ok(trackService.findByAudioKey(audioKey));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<TrackResponse> getTrack(@PathVariable Long id) {
         return ResponseEntity.ok(trackService.getTrackById(id));
-    }
-
-    @PostMapping
-    public ResponseEntity<TrackResponse> createTrack(@RequestBody @Valid TrackRequest trackRequest) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(trackService.createTrack(trackRequest));
     }
 
     @DeleteMapping("/{id}")

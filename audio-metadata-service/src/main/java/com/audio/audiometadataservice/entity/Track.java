@@ -28,10 +28,5 @@ public class Track {
     @Column(nullable = false, unique = true)
     private String audioKey;
 
-    private String album;
     private Integer duration;
-    private LocalDate releaseDate;
-
-    @CreationTimestamp
-    private LocalDateTime createdAt;
 }

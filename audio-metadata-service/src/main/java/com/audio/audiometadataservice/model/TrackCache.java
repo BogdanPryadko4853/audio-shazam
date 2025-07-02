@@ -19,8 +19,5 @@ public class TrackCache {
     private String artist;
     @Indexed
     private String audioKey;
-    private String album;
     private Integer duration;
-    private LocalDate releaseDate;
-    private LocalDateTime createdAt;
 }

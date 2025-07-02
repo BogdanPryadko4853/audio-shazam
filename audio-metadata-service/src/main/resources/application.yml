@@ -28,3 +28,9 @@ eureka:
 
 server:
   port: 8081
+
+minio:
+  url: http://localhost:9000
+  access: key=your-access-key
+  secret: key=your-secret-key
+  bucket: audio-bucket

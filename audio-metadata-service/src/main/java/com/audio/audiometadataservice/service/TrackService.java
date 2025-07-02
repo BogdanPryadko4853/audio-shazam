@@ -7,5 +7,5 @@ public interface TrackService {
     TrackResponse getTrackById(Long id);
     TrackResponse createTrack(TrackRequest trackRequest);
     void deleteTrack(Long id);
-    TrackResponse findByAudioKey(String audioKey);
+    TrackResponse findByAudioKey(String audioKey); // Изменено имя метода
 }
