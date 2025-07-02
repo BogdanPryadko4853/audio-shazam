@@ -36,9 +36,7 @@ public class AudioIngestionController {
 
         eventProducer.sendAudioUploadEvent(
                 metadata.getId(),
-                s3Key,
-                request.getTitle(),
-                request.getArtist()
+                s3Key
         );
 
         return ResponseEntity.ok(

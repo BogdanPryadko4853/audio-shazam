@@ -1,63 +1,102 @@
 package com.audio.audiofingerprintservice.service;
 
-import com.audio.audiofingerprintservice.model.AudioUploadEvent;
-import com.audio.audiofingerprintservice.model.entity.FingerprintHash;
-import com.audio.audiofingerprintservice.model.entity.FingerprintMetadata;
-import com.audio.audiofingerprintservice.repository.FingerprintHashRepository;
-import com.audio.audiofingerprintservice.repository.FingerprintMetadataRepository;
-import io.minio.GetObjectArgs;
-import io.minio.MinioClient;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.Script;
+import co.elastic.clients.elasticsearch.core.SearchRequest;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.search.Hit;
+import co.elastic.clients.json.JsonData;
+import com.audio.audiofingerprintservice.dto.AudioMatch;
+import com.audio.audiofingerprintservice.dto.FingerprintMatchResponse;
+import com.audio.audiofingerprintservice.dto.TrackMetadataResponse;
+import com.audio.audiofingerprintservice.exception.FingerprintException;
+import com.audio.audiofingerprintservice.model.AudioFingerprint;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.io.InputStream;
-import java.time.Instant;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
-@RequiredArgsConstructor
-@Slf4j
 public class FingerprintService {
-    private final MinioClient minioClient;
-    private final FingerprintGenerator fingerprintGenerator;
-    private final FingerprintHashRepository hashRepository;
-    private final FingerprintMetadataRepository metadataRepository;
+    private final ElasticsearchClient esClient;
+    private final ChromaprintWrapper chromaprint;
+    private final MetadataServiceClient metadataClient;
 
-    @Value("${minio.bucket}")
-    private String bucket;
+    public FingerprintService(ElasticsearchClient esClient,
+                              ChromaprintWrapper chromaprint,
+                              MetadataServiceClient metadataClient) {
+        this.esClient = esClient;
+        this.chromaprint = chromaprint;
+        this.metadataClient = metadataClient;
+    }
 
-    public void processAudioUpload(AudioUploadEvent event) {
+    public String generateFingerprint(byte[] audioData) throws FingerprintException {
         try {
-            byte[] audioData = downloadAudio(event.getS3Key());
-
-            String fingerprint = fingerprintGenerator.generate(audioData);
-
-            hashRepository.save(new FingerprintHash(
-                    event.getEventId(),
-                    fingerprint,
-                    Instant.now()
-            ));
-
-            FingerprintMetadata metadata = new FingerprintMetadata(event.getEventId());
-            metadata.setTrackTitle("Unknown");
-            metadata.setArtist("Unknown");
-            metadataRepository.save(metadata);
-
-            log.info("Processed audio: {}", event.getEventId());
+            return chromaprint.generateFingerprint(audioData);
         } catch (Exception e) {
-            log.error("Error processing audio: {}", event.getEventId(), e);
-            throw new RuntimeException(e);
+            throw new FingerprintException("Failed to generate fingerprint", e);
         }
     }
 
-    private byte[] downloadAudio(String s3Key) throws Exception {
-        try (InputStream stream = minioClient.getObject(
-                GetObjectArgs.builder()
-                        .bucket(bucket)
-                        .object(s3Key)
-                        .build())) {
-            return stream.readAllBytes();
+    public void saveFingerprint(AudioFingerprint fingerprint) throws IOException {
+        esClient.index(i -> i
+                .index("audio_fingerprints")
+                .id(fingerprint.getTrackId())
+                .document(fingerprint)
+        );
+    }
+
+    public FingerprintMatchResponse searchMatch(MultipartFile audioFile) {
+        try {
+            byte[] audioData = audioFile.getBytes();
+            String queryFingerprint = generateFingerprint(audioData);
+
+            Script script = Script.of(s -> s
+                    .inline(i -> i
+                            .source("cosineSimilarity(params.query_vector, 'fingerprint') + 1.0")
+                            .params("query_vector", JsonData.of(queryFingerprint))
+                    )
+            );
+
+            SearchRequest request = SearchRequest.of(s -> s
+                    .index("audio_fingerprints")
+                    .query(q -> q
+                            .scriptScore(ss -> ss
+                                    .query(qq -> qq.matchAll(ma -> ma))
+                                    .script(script)
+                            )
+                    )
+                    .size(5)
+            );
+
+            SearchResponse<AudioFingerprint> response = esClient.search(request, AudioFingerprint.class);
+
+            List<AudioMatch> matches = new ArrayList<>();
+            for (Hit<AudioFingerprint> hit : response.hits().hits()) {
+                AudioFingerprint fingerprint = hit.source();
+                if (fingerprint != null) {
+                    TrackMetadataResponse metadata = metadataClient.getTrackMetadata(fingerprint.getTrackId());
+
+                    AudioMatch match = new AudioMatch();
+                    match.setTrackId(fingerprint.getTrackId());
+                    match.setTitle(metadata.getTitle());
+                    match.setArtist(metadata.getArtist());
+                    match.setDuration(metadata.getDuration());
+                    match.setAudioUrl(metadata.getAudioUrl());
+                    match.setConfidence(hit.score().floatValue() / 2);
+
+                    matches.add(match);
+                }
+            }
+
+            FingerprintMatchResponse result = new FingerprintMatchResponse();
+            result.setMatches(matches);
+            return result;
+
+        } catch (Exception e) {
+            throw new FingerprintException("Search failed", e);
         }
     }
 }

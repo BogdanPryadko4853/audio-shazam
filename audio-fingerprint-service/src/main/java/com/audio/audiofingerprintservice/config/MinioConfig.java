@@ -1,25 +1,25 @@
 package com.audio.audiofingerprintservice.config;
 
 import io.minio.MinioClient;
-import lombok.Data;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-
 @Configuration
-@ConfigurationProperties(prefix = "minio")
-@Data
 public class MinioConfig {
-    private String endpoint;
+    @Value("${minio.url}")
+    private String minioUrl;
+
+    @Value("${minio.access-key}")
     private String accessKey;
+
+    @Value("${minio.secret-key}")
     private String secretKey;
-    private String bucket;
 
     @Bean
     public MinioClient minioClient() {
         return MinioClient.builder()
-                .endpoint(endpoint)
+                .endpoint(minioUrl)
                 .credentials(accessKey, secretKey)
                 .build();
     }

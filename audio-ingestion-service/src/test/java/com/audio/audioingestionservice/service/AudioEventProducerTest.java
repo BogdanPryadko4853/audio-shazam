@@ -26,7 +26,7 @@ class AudioEventProducerTest {
     @Test
     void shouldSendCompleteAudioUploadEvent() {
         // Act
-        eventProducer.sendAudioUploadEvent("track-123", "sources/test.mp3", "Test", "Artist");
+        eventProducer.sendAudioUploadEvent("track-123", "sources/test.mp3");
 
         // Assert
         ArgumentCaptor<AudioUploadEvent> eventCaptor = ArgumentCaptor.forClass(AudioUploadEvent.class);
@@ -35,7 +35,5 @@ class AudioEventProducerTest {
         AudioUploadEvent event = eventCaptor.getValue();
         assertThat(event.getTrackId()).isEqualTo("track-123");
         assertThat(event.getS3Key()).isEqualTo("sources/test.mp3");
-        assertThat(event.getTitle()).isEqualTo("Test");
-        assertThat(event.getArtist()).isEqualTo("Artist");
     }
 }

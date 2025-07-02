@@ -10,7 +10,4 @@ import java.time.Instant;
 public class AudioUploadEvent {
     private String trackId;
     private String s3Key;
-    private String title;
-    private String artist;
-    private Instant timestamp;
 }

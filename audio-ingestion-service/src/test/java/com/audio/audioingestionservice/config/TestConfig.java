@@ -81,9 +81,4 @@ public class TestConfig {
         return new TestRestTemplate();
     }
 
-    @Bean
-    @Primary
-    public MetadataServiceClient metadataServiceClient() {
-        return mock(MetadataServiceClient.class);
-    }
 }

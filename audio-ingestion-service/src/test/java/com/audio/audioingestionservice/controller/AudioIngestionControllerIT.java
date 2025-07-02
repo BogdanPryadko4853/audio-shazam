@@ -25,7 +25,6 @@ import org.testcontainers.utility.DockerImageName;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -110,6 +109,6 @@ class AudioIngestionControllerIT {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         verify(storageService).uploadAudio(any());
         verify(metadataClient).createTrack(any(TrackRequest.class));
-        verify(eventProducer).sendAudioUploadEvent("track-123", "sources/test-key.mp3", "Test Song", "Artist");
+        verify(eventProducer).sendAudioUploadEvent("track-123", "sources/test-key.mp3");
     }
 }

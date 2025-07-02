@@ -1,9 +1,11 @@
 package com.audio.audioingestionservice.dto;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
-@Data
+@Getter
+@Setter
 public class AudioUploadRequest {
     private MultipartFile file;
     private String title;
