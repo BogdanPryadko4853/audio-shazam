@@ -1,16 +1,14 @@
 spring:
   kafka:
-    bootstrap-servers: kafka:9092
+    bootstrap-servers: localhost:29092
     producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-      properties:
-        acks: all
-        retries: 3
-        delivery.timeout.ms: 30000
+      bootstrap-servers: localhost:29092
     consumer:
-      auto-offset-reset: earliest
-      enable-auto-commit: false
+      bootstrap-servers: localhost:29092
+    admin:
+      properties:
+        request.timeout.ms: 30000
+      fail-fast: true
 
 kafka:
   topics:
@@ -23,3 +21,7 @@ minio:
   secure: false
 server:
   port: 8000
+
+metadata:
+  service:
+    url: http://localhost:8080/api/v1

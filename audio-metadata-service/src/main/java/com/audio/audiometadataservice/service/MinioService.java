@@ -3,6 +3,7 @@ package com.audio.audiometadataservice.service;
 import com.audio.audiometadataservice.config.MinioProperties;
 import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MinioClient;
+import io.minio.http.Method;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,7 @@ public class MinioService {
         try {
             return minioClient.getPresignedObjectUrl(
                     GetPresignedObjectUrlArgs.builder()
+                            .method(Method.GET)
                             .bucket(properties.getBucket())
                             .object(objectPath)
                             .expiry(7, TimeUnit.DAYS)
