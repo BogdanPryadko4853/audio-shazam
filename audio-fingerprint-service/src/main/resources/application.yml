@@ -1,0 +1,16 @@
+spring:
+  kafka:
+    bootstrap-servers: kafka:9092
+
+minio:
+  url: http://minio:9000
+  access-key: minioadmin
+  secret-key: minioadmin
+  bucket: audio-bucket
+
+elasticsearch:
+  url: http://elasticsearch:9200
+
+metadata:
+  service:
+    url: http://metadata-service:8010

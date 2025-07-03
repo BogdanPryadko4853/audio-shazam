@@ -3,6 +3,7 @@ package com.audio.audiofingerprintservice.service;
 import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Component;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -11,14 +12,18 @@ import java.nio.file.Path;
 public class ChromaprintWrapper {
     private static final String CHROMAPRINT_CLI = "fpcalc";
 
-    public String generateFingerprint(byte[] audioData) throws IOException, InterruptedException {
+    public String generateFingerprint(byte[] audioData) throws IOException {
+        if (audioData == null) {
+            throw new IOException("Audio data cannot be null");
+        }
 
-        Path tempFile = Files.createTempFile("audio_", ".mp3");
+        Path tempFile = null;
         try {
+            tempFile = Files.createTempFile("audio_", ".tmp");
             Files.write(tempFile, audioData);
 
             Process process = new ProcessBuilder()
-                    .command(CHROMAPRINT_CLI, tempFile.toString())
+                    .command(CHROMAPRINT_CLI, tempFile.toAbsolutePath().toString())
                     .start();
 
             String output = IOUtils.toString(process.getInputStream(), "UTF-8");
@@ -34,8 +39,13 @@ public class ChromaprintWrapper {
             }
 
             return parts[1].trim();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IOException("Fingerprint generation interrupted", e);
         } finally {
-            Files.deleteIfExists(tempFile);
+            if (tempFile != null) {
+                Files.deleteIfExists(tempFile);
+            }
         }
     }
 }

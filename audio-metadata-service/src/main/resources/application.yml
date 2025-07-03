@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/audio_metadata
+    url: jdbc:postgresql://db:5432/audio_metadata
     username: audio_admin
     password: securepass
     driver-class-name: org.postgresql.Driver
@@ -14,12 +14,17 @@ spring:
     show-sql: true
   data:
     redis:
-      host: localhost
+      host: redis
       port: 6379
       timeout: 5000ms
+  kafka:
+    bootstrap-servers: kafka:9092
 
 minio:
-  url: http://localhost:9000
+  url: http://minio:9000
   access-key: minioadmin
   secret-key: minioadmin
   bucket: audio-bucket
+
+server:
+  port: 8010

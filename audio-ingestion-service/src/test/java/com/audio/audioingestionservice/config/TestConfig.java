@@ -1,6 +1,5 @@
 package com.audio.audioingestionservice.config;
 
-import com.audio.audioingestionservice.controller.MetadataServiceClient;
 import com.audio.audioingestionservice.model.AudioUploadEvent;
 import com.audio.audioingestionservice.service.AudioStorageService;
 import io.minio.MinioClient;

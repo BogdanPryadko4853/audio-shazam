@@ -1,10 +1,10 @@
 spring:
   kafka:
-    bootstrap-servers: localhost:29092
+    bootstrap-servers: kafka:29092
     producer:
-      bootstrap-servers: localhost:29092
+      bootstrap-servers: kafka:29092
     consumer:
-      bootstrap-servers: localhost:29092
+      bootstrap-servers: kafka:29092
     admin:
       properties:
         request.timeout.ms: 30000
@@ -13,15 +13,17 @@ spring:
 kafka:
   topics:
     audio-uploads: audio-uploads
+
 minio:
-  endpoint: http://localhost:9000
+  endpoint: http://minio:9000
   access-key: minioadmin
   secret-key: minioadmin
   bucket: audio-bucket
   secure: false
-server:
-  port: 8000
 
 metadata:
   service:
-    url: http://localhost:8080/api/v1
+    url: http://metadata-service:8010/api/v1
+
+server:
+  port: 8000

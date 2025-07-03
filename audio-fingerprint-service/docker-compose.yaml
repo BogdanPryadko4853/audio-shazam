@@ -1,20 +1,20 @@
 version: '3.8'
 
 services:
-  fingerprint-service:
-    build: .
-    ports:
-      - "8082:8080"
-    environment:
-      - SPRING_KAFKA_BOOTSTRAP-SERVERS=kafka:9092
-      - MINIO_URL=http://minio:9000
-      - MINIO_ACCESS_KEY=minioadmin
-      - MINIO_SECRET_KEY=minioadmin
-      - ELASTICSEARCH_URL=elasticsearch:9200
-    depends_on:
-      - kafka
-      - minio
-      - elasticsearch
+#  fingerprint-service:
+#    build: .
+#    ports:
+#      - "8082:8080"
+#    environment:
+#      - SPRING_KAFKA_BOOTSTRAP-SERVERS=kafka:9092
+#      - MINIO_URL=http://minio:9000
+#      - MINIO_ACCESS_KEY=minioadmin
+#      - MINIO_SECRET_KEY=minioadmin
+#      - ELASTICSEARCH_URL=elasticsearch:9200
+#    depends_on:
+#      - kafka
+#      - minio
+#      - elasticsearch
 
   kafka:
     image: confluentinc/cp-kafka:7.0.1
@@ -50,7 +50,7 @@ services:
     command: server /data --console-address ":9001"
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.5.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.10
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
