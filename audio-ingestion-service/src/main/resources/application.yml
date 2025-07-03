@@ -1,10 +1,10 @@
 spring:
   kafka:
-    bootstrap-servers: kafka:29092
+    bootstrap-servers: kafka:9092
     producer:
-      bootstrap-servers: kafka:29092
+      bootstrap-servers: kafka:9092
     consumer:
-      bootstrap-servers: kafka:29092
+      bootstrap-servers: kafka:9092
     admin:
       properties:
         request.timeout.ms: 30000
