@@ -11,6 +11,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class KafkaConsumerService {
@@ -21,23 +23,16 @@ public class KafkaConsumerService {
     private final FingerprintService fingerprintService;
     private final MetadataServiceClient metadataClient;
 
-
-
     @KafkaListener(topics = "audio-uploads")
     public void consumeAudioUpload(ConsumerRecord<String, String> record) {
         try {
             AudioUploadEvent event = objectMapper.readValue(record.value(), AudioUploadEvent.class);
-
-            // 1. Получаем метаданные из сервиса
             TrackMetadataResponse metadata = metadataClient.getTrackMetadata(event.getTrackId());
-
-            // 2. Загружаем аудио
             byte[] audioData = minioService.downloadAudio(event.getS3Key());
 
-            // 3. Генерируем fingerprint
-            String fingerprint = fingerprintService.generateFingerprint(audioData);
+            // Теперь возвращает List<Float>
+            List<Float> fingerprint = fingerprintService.generateFingerprint(audioData);
 
-            // 4. Сохраняем
             AudioFingerprint audioFingerprint = new AudioFingerprint();
             audioFingerprint.setTrackId(event.getTrackId());
             audioFingerprint.setTitle(metadata.getTitle());
@@ -45,8 +40,9 @@ public class KafkaConsumerService {
             audioFingerprint.setFingerprint(fingerprint);
 
             fingerprintService.saveFingerprint(audioFingerprint);
+
         } catch (Exception e) {
-            logger.error("Processing failed: {}", e.getMessage());
+            logger.error("Processing failed for track {}: {}" + e.getMessage());
         }
     }
 }

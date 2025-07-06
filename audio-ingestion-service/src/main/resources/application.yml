@@ -2,9 +2,10 @@ spring:
   kafka:
     bootstrap-servers: kafka:9092
     producer:
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
       bootstrap-servers: kafka:9092
-    consumer:
-      bootstrap-servers: kafka:9092
+      properties:
+        spring.json.add-type-headers: false
     admin:
       properties:
         request.timeout.ms: 30000

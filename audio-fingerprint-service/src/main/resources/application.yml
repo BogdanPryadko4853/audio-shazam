@@ -1,6 +1,15 @@
 spring:
   kafka:
     bootstrap-servers: kafka:9092
+    consumer:
+      group-id: fingerprint-service-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        spring.json.use.type.headers: false
+        spring.json.trusted.packages: '*'
+
 
 minio:
   url: http://minio:9000

@@ -18,7 +18,6 @@ public class ElasticsearchConfig {
 
     @Bean
     public ElasticsearchClient elasticsearchClient() {
-
         RestClient restClient = RestClient.builder(
                 HttpHost.create(elasticsearchUrl)
         ).build();
