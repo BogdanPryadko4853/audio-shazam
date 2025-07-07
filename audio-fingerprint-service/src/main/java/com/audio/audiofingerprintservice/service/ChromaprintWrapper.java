@@ -1,5 +1,6 @@
 package com.audio.audiofingerprintservice.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Component;
 
@@ -9,43 +10,41 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 @Component
+@Slf4j
 public class ChromaprintWrapper {
     private static final String CHROMAPRINT_CLI = "fpcalc";
 
-    public String generateFingerprint(byte[] audioData) throws IOException {
-        if (audioData == null) {
-            throw new IOException("Audio data cannot be null");
-        }
+    public String generateFingerprint(byte[] audioData) throws IOException, InterruptedException {
+        log.info("Generating fingerprint for audio data (size: {} bytes)", audioData.length);
 
-        Path tempFile = null;
         try {
-            tempFile = Files.createTempFile("audio_", ".tmp");
-            Files.write(tempFile, audioData);
+            Path tempFile = Files.createTempFile("audio_", ".tmp");
+            try {
+                Files.write(tempFile, audioData);
+                log.debug("Temp file created: {}", tempFile);
 
-            Process process = new ProcessBuilder()
-                    .command(CHROMAPRINT_CLI, tempFile.toAbsolutePath().toString())
-                    .start();
+                Process process = new ProcessBuilder()
+                        .command(CHROMAPRINT_CLI, tempFile.toString())
+                        .redirectErrorStream(true)
+                        .start();
 
-            String output = IOUtils.toString(process.getInputStream(), "UTF-8");
-            int exitCode = process.waitFor();
+                String output = IOUtils.toString(process.getInputStream(), "UTF-8");
+                int exitCode = process.waitFor();
 
-            if (exitCode != 0) {
-                throw new IOException("fpcalc failed with exit code " + exitCode);
-            }
+                log.debug("fpcalc output:\n{}", output);
 
-            String[] parts = output.split("=", 2);
-            if (parts.length != 2) {
-                throw new IOException("Invalid fpcalc output: " + output);
-            }
+                if (exitCode != 0) {
+                    throw new IOException("fpcalc exited with code " + exitCode);
+                }
 
-            return parts[1].trim();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new IOException("Fingerprint generation interrupted", e);
-        } finally {
-            if (tempFile != null) {
+                return output.trim();
+            } finally {
                 Files.deleteIfExists(tempFile);
             }
+        } catch (Exception e) {
+            log.error("Fingerprint generation failed", e);
+            throw e;
         }
     }
+
 }

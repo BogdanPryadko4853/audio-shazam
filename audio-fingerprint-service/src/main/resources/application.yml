@@ -23,3 +23,7 @@ elasticsearch:
 metadata:
   service:
     url: http://metadata-service:8010
+  logging:
+    level:
+      org.springframework.web=DEBUG
+      com.audio.audiofingerprintservice=TRACE

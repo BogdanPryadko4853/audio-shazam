@@ -150,18 +150,24 @@ services:
 
   # Search service
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.10
+    image: elasticsearch:8.6.0
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
+      - bootstrap.memory_lock=true
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
     ports:
       - "9200:9200"
     ulimits:
       memlock:
         soft: -1
         hard: -1
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
 
 volumes:
+  esdata:
+    driver: local
   postgres_data:
   redis_data:
   minio_data:

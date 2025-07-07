@@ -1,22 +1,18 @@
 package com.audio.audiofingerprintservice.service;
 
 import com.audio.audiofingerprintservice.dto.TrackMetadataResponse;
-import com.audio.audiofingerprintservice.model.AudioFingerprint;
-import com.audio.audiofingerprintservice.model.AudioUploadEvent;
+import com.audio.audiofingerprintservice.model.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class KafkaConsumerService {
-    private static final Logger logger = LoggerFactory.getLogger(KafkaConsumerService.class);
 
     private final ObjectMapper objectMapper;
     private final MinioService minioService;
@@ -30,19 +26,17 @@ public class KafkaConsumerService {
             TrackMetadataResponse metadata = metadataClient.getTrackMetadata(event.getTrackId());
             byte[] audioData = minioService.downloadAudio(event.getS3Key());
 
-            // Теперь возвращает List<Float>
-            List<Float> fingerprint = fingerprintService.generateFingerprint(audioData);
+            AudioFingerprint fingerprint = AudioFingerprint.builder()
+                    .trackId(event.getTrackId())
+                    .title(metadata.getTitle())
+                    .artist(metadata.getArtist())
+                    .fingerprint(fingerprintService.generateFingerprint(audioData))
+                    .build();
 
-            AudioFingerprint audioFingerprint = new AudioFingerprint();
-            audioFingerprint.setTrackId(event.getTrackId());
-            audioFingerprint.setTitle(metadata.getTitle());
-            audioFingerprint.setArtist(metadata.getArtist());
-            audioFingerprint.setFingerprint(fingerprint);
-
-            fingerprintService.saveFingerprint(audioFingerprint);
-
+            fingerprintService.saveFingerprint(fingerprint);
+            log.info("Successfully processed audio upload for track: {}", event.getTrackId());
         } catch (Exception e) {
-            logger.error("Processing failed for track {}: {}" + e.getMessage());
+            log.error("Failed to process audio upload: {}", e.getMessage(), e);
         }
     }
 }
