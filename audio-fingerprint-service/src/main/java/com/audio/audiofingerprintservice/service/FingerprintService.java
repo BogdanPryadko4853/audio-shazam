@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,11 +41,11 @@ public class FingerprintService {
         esClient.indices().refresh(r -> r.index(INDEX_NAME));
     }
 
+
     public FingerprintMatchResponse searchMatch(MultipartFile audioFile) {
         try {
             byte[] audioData = audioFile.getBytes();
             List<Float> queryVector = generateFingerprint(audioData);
-
 
             List<Double> queryVectorDouble = queryVector.stream()
                     .map(Float::doubleValue)
@@ -66,34 +65,45 @@ public class FingerprintService {
                                             .minScore(1.2f)
                                     )
                             )
-                            .size(5),
+                            .size(1)
+                    ,
                     AudioFingerprint.class
             );
-            return convertToMatchResponse(response);
+
+            return convertToBestMatchResponse(response);
         } catch (Exception e) {
             throw new FingerprintException("Audio search failed", e);
         }
     }
 
-    private FingerprintMatchResponse convertToMatchResponse(SearchResponse<AudioFingerprint> response) {
-        List<AudioMatch> matches = new ArrayList<>();
-
-        for (Hit<AudioFingerprint> hit : response.hits().hits()) {
-            if (hit.source() != null) {
-                TrackMetadataResponse metadata = metadataServiceClient.getTrackMetadata(hit.source().getTrackId());
-                AudioFingerprint fp = hit.source();
-                matches.add(AudioMatch.builder()
-                        .trackId(fp.getTrackId())
-                        .title(metadata.getTitle())
-                        .artist(metadata.getArtist())
-                        .duration(metadata.getDuration())
-                        .confidence(hit.score() != null ? (hit.score().floatValue() - 1.0f) : 0)
-                        .build());
-            }
+    private FingerprintMatchResponse convertToBestMatchResponse(SearchResponse<AudioFingerprint> response) {
+        if (response.hits().hits().isEmpty()) {
+            return FingerprintMatchResponse.builder()
+                    .matches(List.of())
+                    .build();
         }
 
+        Hit<AudioFingerprint> bestHit = response.hits().hits().get(0);
+        if (bestHit.source() == null) {
+            return FingerprintMatchResponse.builder()
+                    .matches(List.of())
+                    .build();
+        }
+
+        AudioFingerprint fp = bestHit.source();
+        TrackMetadataResponse metadata = metadataServiceClient.getTrackMetadata(fp.getTrackId());
+
+        AudioMatch bestMatch = AudioMatch.builder()
+                .trackId(fp.getTrackId())
+                .title(metadata.getTitle())
+                .artist(metadata.getArtist())
+                .duration(metadata.getDuration())
+                .audioUrl(metadata.getAudioUrl())
+                .confidence(bestHit.score() != null ? (bestHit.score().floatValue() - 1.0f) : 0)
+                .build();
+
         return FingerprintMatchResponse.builder()
-                .matches(matches)
+                .matches(List.of(bestMatch))
                 .build();
     }
 }

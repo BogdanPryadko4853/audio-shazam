@@ -114,6 +114,7 @@ services:
       MINIO_ROOT_PASSWORD: minioadmin
     command: server /data --console-address ":9001"
     volumes:
+      - /etc/localtime:/etc/localtime:ro
       - minio_data:/data
 
   # Message broker services

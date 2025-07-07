@@ -12,12 +12,13 @@ import org.springframework.context.annotation.Profile;
 @Profile("!test")
 @EnableConfigurationProperties(MinioProperties.class)
 public class MinioConfig {
+    
+        @Bean
+        public MinioClient minioClient(MinioProperties properties) {
+            return MinioClient.builder()
+                    .endpoint(properties.getInternalUrl())
+                    .credentials(properties.getAccessKey(), properties.getSecretKey())
+                    .build();
 
-    @Bean
-    public MinioClient minioClient(MinioProperties properties) {
-        return MinioClient.builder()
-                .endpoint(properties.getUrl())
-                .credentials(properties.getAccessKey(), properties.getSecretKey())
-                .build();
     }
 }
