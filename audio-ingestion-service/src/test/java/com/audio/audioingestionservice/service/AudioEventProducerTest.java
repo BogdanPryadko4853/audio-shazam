@@ -10,30 +10,41 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.core.KafkaTemplate;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class AudioEventProducerTest {
 
     @Mock
-    private KafkaTemplate<String, AudioUploadEvent> kafkaTemplate;
+    private KafkaTemplate<String, String> kafkaTemplate;
+
+    @Mock
+    private ObjectMapper objectMapper;
 
     @InjectMocks
     private AudioEventProducer eventProducer;
 
     @Test
-    void shouldSendCompleteAudioUploadEvent() {
+    void shouldSendCompleteAudioUploadEvent() throws JsonProcessingException {
+        // Arrange
+        AudioUploadEvent expectedEvent = new AudioUploadEvent("track-123", "sources/test.mp3");
+        when(objectMapper.writeValueAsString(expectedEvent)).thenReturn("serialized-event");
+
         // Act
         eventProducer.sendAudioUploadEvent("track-123", "sources/test.mp3");
 
         // Assert
-        ArgumentCaptor<AudioUploadEvent> eventCaptor = ArgumentCaptor.forClass(AudioUploadEvent.class);
-        verify(kafkaTemplate).send(eq("audio-uploads"), eventCaptor.capture());
+        ArgumentCaptor<String> topicCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> eventCaptor = ArgumentCaptor.forClass(String.class);
 
-        AudioUploadEvent event = eventCaptor.getValue();
-        assertThat(event.getTrackId()).isEqualTo("track-123");
-        assertThat(event.getS3Key()).isEqualTo("sources/test.mp3");
+        verify(kafkaTemplate).send(topicCaptor.capture(), eventCaptor.capture());
+
+        assertThat(topicCaptor.getValue()).isEqualTo("audio-uploads");
+        assertThat(eventCaptor.getValue()).isEqualTo("serialized-event");
     }
 }

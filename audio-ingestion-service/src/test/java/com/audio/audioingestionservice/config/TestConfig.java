@@ -2,6 +2,7 @@ package com.audio.audioingestionservice.config;
 
 import com.audio.audioingestionservice.model.AudioUploadEvent;
 import com.audio.audioingestionservice.service.AudioStorageService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.minio.MinioClient;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -23,37 +24,37 @@ public class TestConfig {
 
     @Bean
     @Primary
-    public KafkaTemplate<String, AudioUploadEvent> kafkaTemplate() {
+    public KafkaTemplate<String, String> kafkaTemplate() {
         return mock(KafkaTemplate.class);
     }
 
     @Bean
     @Primary
-    public ProducerFactory<String, AudioUploadEvent> producerFactory() {
+    public ProducerFactory<String, String> producerFactory() {
         return mock(ProducerFactory.class);
     }
 
     @Bean
     @Primary
-    public ConsumerFactory<String, AudioUploadEvent> consumerFactory() {
+    public ConsumerFactory<String, String> consumerFactory() {
         return mock(ConsumerFactory.class);
     }
 
     @Bean
     @Primary
-    public ConcurrentKafkaListenerContainerFactory<String, AudioUploadEvent> kafkaListenerContainerFactory() {
+    public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory() {
         return mock(ConcurrentKafkaListenerContainerFactory.class);
     }
 
     @Bean
     @Primary
     public RecordMessageConverter messageConverter() {
-        return mock(StringJsonMessageConverter.class);
+        return new StringJsonMessageConverter();
     }
 
     @Bean
     @Primary
-    public KafkaTransactionManager<String, AudioUploadEvent> kafkaTransactionManager() {
+    public KafkaTransactionManager<String, String> kafkaTransactionManager() {
         return mock(KafkaTransactionManager.class);
     }
 
@@ -76,8 +77,13 @@ public class TestConfig {
     }
 
     @Bean
+    @Primary
+    public ObjectMapper objectMapper() {
+        return mock(ObjectMapper.class);
+    }
+
+    @Bean
     public TestRestTemplate testRestTemplate() {
         return new TestRestTemplate();
     }
-
 }

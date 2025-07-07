@@ -7,6 +7,7 @@ import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.json.JsonData;
 import com.audio.audiofingerprintservice.dto.AudioMatch;
 import com.audio.audiofingerprintservice.dto.FingerprintMatchResponse;
+import com.audio.audiofingerprintservice.dto.TrackMetadataResponse;
 import com.audio.audiofingerprintservice.exception.FingerprintException;
 import com.audio.audiofingerprintservice.model.AudioFingerprint;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ public class FingerprintService {
 
     private final ElasticsearchClient esClient;
     private final SimpleFingerprintService simpleFingerprintService;
+    private final MetadataServiceClient metadataServiceClient;
 
     private static final String INDEX_NAME = "audio_fingerprints";
 
@@ -45,7 +47,7 @@ public class FingerprintService {
             byte[] audioData = audioFile.getBytes();
             List<Float> queryVector = generateFingerprint(audioData);
 
-            // Конвертируем List<Float> в List<Double>
+
             List<Double> queryVectorDouble = queryVector.stream()
                     .map(Float::doubleValue)
                     .collect(Collectors.toList());
@@ -61,13 +63,12 @@ public class FingerprintService {
                                                             .params("query_vector", JsonData.of(queryVectorDouble))
                                                     )
                                             )
-                                            .minScore(1.2f) // Порог схожести
+                                            .minScore(1.2f)
                                     )
                             )
-                            .size(5), // Лимит результатов
+                            .size(5),
                     AudioFingerprint.class
             );
-
             return convertToMatchResponse(response);
         } catch (Exception e) {
             throw new FingerprintException("Audio search failed", e);
@@ -79,11 +80,13 @@ public class FingerprintService {
 
         for (Hit<AudioFingerprint> hit : response.hits().hits()) {
             if (hit.source() != null) {
+                TrackMetadataResponse metadata = metadataServiceClient.getTrackMetadata(hit.source().getTrackId());
                 AudioFingerprint fp = hit.source();
                 matches.add(AudioMatch.builder()
                         .trackId(fp.getTrackId())
-                        .title(fp.getTitle())
-                        .artist(fp.getArtist())
+                        .title(metadata.getTitle())
+                        .artist(metadata.getArtist())
+                        .duration(metadata.getDuration())
                         .confidence(hit.score() != null ? (hit.score().floatValue() - 1.0f) : 0)
                         .build());
             }
