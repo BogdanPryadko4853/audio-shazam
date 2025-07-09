@@ -10,3 +10,4 @@ spring:
         native:
           search-locations:
             - classpath:/configs/
+          basedir: ./configs

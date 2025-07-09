@@ -1,0 +1,13 @@
+spring:
+  kafka:
+    bootstrap-servers: kafka:9092
+    producer:
+      bootstrap-servers: kafka:9092
+
+minio:
+  endpoint: http://minio:9000
+
+metadata:
+  service:
+    url: http://metadata-service:8010/api/v1
+

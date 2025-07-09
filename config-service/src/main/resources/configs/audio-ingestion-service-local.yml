@@ -1,0 +1,13 @@
+spring:
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      bootstrap-servers: localhost:9092
+
+minio:
+  endpoint: http://localhost:9000
+
+metadata:
+  service:
+    url: http://localhost:8010/api/v1
+

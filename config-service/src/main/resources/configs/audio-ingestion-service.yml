@@ -1,0 +1,24 @@
+spring:
+  kafka:
+    producer:
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties:
+        spring.json.add-type-headers: false
+    admin:
+      properties:
+        request.timeout.ms: 30000
+      fail-fast: true
+
+kafka:
+  topics:
+    audio-uploads: audio-uploads
+
+minio:
+  access-key: minioadmin
+  secret-key: minioadmin
+  bucket: audio-bucket
+  secure: false
+
+
+server:
+  port: 8000

@@ -1,30 +1,20 @@
 spring:
-  kafka:
-    bootstrap-servers: kafka:9092
-    producer:
-      value-serializer: org.apache.kafka.common.serialization.StringSerializer
-      bootstrap-servers: kafka:9092
-      properties:
-        spring.json.add-type-headers: false
-    admin:
-      properties:
-        request.timeout.ms: 30000
+  application:
+    name: audio-ingestion-service
+  config:
+    import: "optional:configserver:${CONFIG_SERVER_URI:http://localhost:8888}"
+  cloud:
+    config:
+      profile: ${SPRING_PROFILES_ACTIVE:local}
       fail-fast: true
+      retry:
+        initial-interval: 1000
+        max-interval: 2000
+        max-attempts: 3
+      request:
+        read-timeout: 10000
+        connect-timeout: 5000
 
-kafka:
-  topics:
-    audio-uploads: audio-uploads
-
-minio:
-  endpoint: http://minio:9000
-  access-key: minioadmin
-  secret-key: minioadmin
-  bucket: audio-bucket
-  secure: false
-
-metadata:
-  service:
-    url: http://metadata-service:8010/api/v1
 
 server:
   port: 8000
