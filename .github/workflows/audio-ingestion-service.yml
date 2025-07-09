@@ -62,13 +62,17 @@ jobs:
         cache: 'maven'
 
     - name: Run tests with Maven
-      run: cd audio-ingestion-service && mvn clean verify
+      run: cd audio-ingestion-service && mvn -B test
       env:
         SPRING_KAFKA_BOOTSTRAP_SERVERS: localhost:9092
         MINIO_ENDPOINT: http://localhost:9000
         MINIO_ACCESS_KEY: minioadmin
         MINIO_SECRET_KEY: minioadmin
         TESTCONTAINERS_RYUK_DISABLED: true
+        SPRING_CLOUD_CONFIG_ENABLED: "false"
+        SPRING_CONFIG_IMPORT: "optional:configserver:"
+
+
 
     - name: Build Docker image
       run: |

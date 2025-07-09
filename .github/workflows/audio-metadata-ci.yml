@@ -1,4 +1,4 @@
-name: CI Pipeline
+name: metadata CI Pipeline
 
 on:
   push:
@@ -46,24 +46,15 @@ jobs:
 
     # Вариант 1: Использование системного Maven
     - name: Run tests with containers
-      run: cd audio-metadata-service && mvn -B verify
+      run: cd audio-metadata-service && mvn -B test
       env:
         SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/test_db
         SPRING_DATASOURCE_USERNAME: test_user
         SPRING_DATASOURCE_PASSWORD: test_password
         SPRING_DATA_REDIS_HOST: localhost
+        SPRING_CLOUD_CONFIG_ENABLED: "false"
+        SPRING_CONFIG_IMPORT: "optional:configserver:"
 
-    # Вариант 2: Использование Maven Wrapper 
-    # - name: Setup Maven Wrapper
-    #   run: mvn wrapper:wrapper
-    #
-    # - name: Run tests with containers
-    #   run: ./mvnw verify
-    #   env:
-    #     SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/test_db
-    #     SPRING_DATASOURCE_USERNAME: test_user
-    #     SPRING_DATASOURCE_PASSWORD: test_password
-    #     SPRING_DATA_REDIS_HOST: localhost
 
     - name: Build Docker image
       run: cd audio-metadata-service && docker build -t audio-metadata-service .
