@@ -70,6 +70,7 @@ jobs:
         MINIO_SECRET_KEY: minioadmin
         TESTCONTAINERS_RYUK_DISABLED: true
         SPRING_CLOUD_CONFIG_ENABLED: "false"
+        SPRING_CONFIG_IMPORT: "optional:configserver:"
 
 
 
