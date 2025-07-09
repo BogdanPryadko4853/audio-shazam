@@ -45,6 +45,9 @@ class TrackControllerIT {
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
 
+        registry.add("spring.cloud.config.enabled", () -> false);
+        registry.add("spring.cloud.bootstrap.enabled", () -> false);
+
         registry.add("spring.data.redis.host", redis::getHost);
         registry.add("spring.data.redis.port", () -> redis.getMappedPort(REDIS_PORT));
         registry.add("spring.data.redis.timeout", () -> "5000ms");
