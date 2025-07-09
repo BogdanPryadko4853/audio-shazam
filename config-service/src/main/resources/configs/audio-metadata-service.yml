@@ -1,0 +1,26 @@
+spring:
+  datasource:
+    username: audio_admin
+    password: securepass
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      connection-timeout: 30000
+      initialization-fail-timeout: 0
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  data:
+    redis:
+      host: redis
+      port: 6379
+      timeout: 5000ms
+
+minio:
+  access-key: minioadmin
+  secret-key: minioadmin
+  bucket: audio-bucket
+
+server:
+  port: 8010

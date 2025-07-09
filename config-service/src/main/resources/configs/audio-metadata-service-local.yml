@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/audio_metadata
+
+  kafka:
+    bootstrap-servers: localhost:9092
+
+minio:
+  internal-url: http://localhost:9000
+

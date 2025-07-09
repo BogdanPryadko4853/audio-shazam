@@ -1,30 +1,20 @@
 spring:
-  datasource:
-    url: jdbc:postgresql://db:5432/audio_metadata
-    username: audio_admin
-    password: securepass
-    driver-class-name: org.postgresql.Driver
-    hikari:
-      connection-timeout: 30000
-      initialization-fail-timeout: 0
-  jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-  data:
-    redis:
-      host: redis
-      port: 6379
-      timeout: 5000ms
-  kafka:
-    bootstrap-servers: kafka:9092
+  application:
+    name: audio-metadata-service
+  config:
+    import: "optional:configserver:${CONFIG_SERVER_URI:http://localhost:8888}"
+  cloud:
+    config:
+      profile: ${SPRING_PROFILES_ACTIVE:local}
+      fail-fast: true
+      retry:
+        initial-interval: 1000
+        max-interval: 2000
+        max-attempts: 3
+      request:
+        read-timeout: 10000
+        connect-timeout: 5000
 
-minio:
-  internal-url: http://minio:9000
-  access-key: minioadmin
-  secret-key: minioadmin
-  bucket: audio-bucket
 
 server:
   port: 8010
