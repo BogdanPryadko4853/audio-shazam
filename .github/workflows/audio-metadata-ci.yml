@@ -1,4 +1,4 @@
-name: CI Pipeline
+name: metadata CI Pipeline
 
 on:
   push:
@@ -52,7 +52,8 @@ jobs:
         SPRING_DATASOURCE_USERNAME: test_user
         SPRING_DATASOURCE_PASSWORD: test_password
         SPRING_DATA_REDIS_HOST: localhost
-
+        SPRING_CLOUD_CONFIG_ENABLED: "false"
+        SPRING_CONFIG_IMPORT: "optional:configserver:"
 
 
     - name: Build Docker image
