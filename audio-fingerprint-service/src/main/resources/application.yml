@@ -1,29 +1,16 @@
 spring:
-  kafka:
-    bootstrap-servers: kafka:9092
-    consumer:
-      group-id: fingerprint-service-group
-      auto-offset-reset: earliest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      properties:
-        spring.json.use.type.headers: false
-        spring.json.trusted.packages: '*'
-
-
-minio:
-  url: http://minio:9000
-  access-key: minioadmin
-  secret-key: minioadmin
-  bucket: audio-bucket
-
-elasticsearch:
-  url: http://elasticsearch:9200
-
-metadata:
-  service:
-    url: http://metadata-service:8010
-  logging:
-    level:
-      org.springframework.web=DEBUG
-      com.audio.audiofingerprintservice=TRACE
+  application:
+    name: audio-fingerprint-service
+  config:
+    import: "optional:configserver:${CONFIG_SERVER_URI:http://localhost:8888}"
+  cloud:
+    config:
+      profile: ${SPRING_PROFILES_ACTIVE:local}
+      fail-fast: true
+      retry:
+        initial-interval: 1000
+        max-interval: 2000
+        max-attempts: 3
+      request:
+        read-timeout: 10000
+        connect-timeout: 5000

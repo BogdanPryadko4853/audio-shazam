@@ -1,0 +1,13 @@
+spring:
+  kafka:
+    bootstrap-servers: localhost:9092
+
+minio:
+  url: http://localhost:9000
+
+elasticsearch:
+  url: http://localhost:9200
+
+metadata:
+  service:
+    url: http://localhost:8010

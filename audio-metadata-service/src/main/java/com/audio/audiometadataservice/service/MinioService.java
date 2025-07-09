@@ -12,24 +12,18 @@ import java.util.concurrent.TimeUnit;
 @Service
 @RequiredArgsConstructor
 public class MinioService {
-    private final MinioClient minioClient;
+    private final MinioClient externalMinioClient;
     private final MinioProperties properties;
 
     public String generatePresignedUrl(String objectPath) {
         try {
-            String internalUrl = minioClient.getPresignedObjectUrl(
+            return externalMinioClient.getPresignedObjectUrl(
                     GetPresignedObjectUrlArgs.builder()
                             .method(Method.GET)
                             .bucket(properties.getBucket())
                             .object(objectPath)
                             .expiry(7, TimeUnit.DAYS)
                             .build());
-
-
-            return internalUrl.replace(
-                    properties.getInternalUrl(),
-                    properties.getExternalUrl()
-            );
         } catch (Exception e) {
             throw new RuntimeException("Failed to generate presigned URL", e);
         }
