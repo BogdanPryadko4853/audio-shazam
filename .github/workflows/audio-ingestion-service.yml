@@ -69,6 +69,8 @@ jobs:
         MINIO_ACCESS_KEY: minioadmin
         MINIO_SECRET_KEY: minioadmin
         TESTCONTAINERS_RYUK_DISABLED: true
+        SPRING_CLOUD_CONFIG_ENABLED: "false"
+        SPRING_CONFIG_IMPORT: "optional:configserver:"
 
     - name: Build Docker image
       run: |
