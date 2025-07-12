@@ -8,3 +8,9 @@ spring:
 minio:
   internal-url: http://minio:9000
 
+eureka:
+  client:
+    service-url:
+      defaultZone: http://service-registry:8761/eureka/
+  instance:
+    prefer-ip-address: true

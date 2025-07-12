@@ -1,13 +1,16 @@
 spring:
   application:
     name: service-registry
-
-server:
-  port: 8761
-
-eureka:
-  instance:
-    hostname: localhost
-  client:
-    register-with-eureka: false
-    fetch-registry: false
+  config:
+    import: "optional:configserver:${CONFIG_SERVER_URI:http://localhost:8888}"
+  cloud:
+    config:
+      profile: ${SPRING_PROFILES_ACTIVE:local}
+      fail-fast: true
+      retry:
+        initial-interval: 1000
+        max-interval: 2000
+        max-attempts: 3
+      request:
+        read-timeout: 10000
+        connect-timeout: 5000

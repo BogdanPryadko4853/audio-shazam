@@ -47,6 +47,7 @@ class TrackControllerIT {
 
         registry.add("spring.cloud.config.enabled", () -> false);
         registry.add("spring.cloud.bootstrap.enabled", () -> false);
+        registry.add("spring.cloud.config.import-check.enabled", () -> false);
 
         registry.add("spring.data.redis.host", redis::getHost);
         registry.add("spring.data.redis.port", () -> redis.getMappedPort(REDIS_PORT));

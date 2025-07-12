@@ -2,6 +2,24 @@ version: '3.8'
 
 services:
 
+  service-registry:
+    build:
+      context: ./service-registry
+      dockerfile: Dockerfile
+    ports:
+      - "8761:8761"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - CONFIG_SERVER_URI=http://config-service:8888
+    depends_on:
+      - config-service
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8761/actuator/health && curl -f http://localhost:8761/eureka/apps || exit 1" ]
+      interval: 10s
+      timeout: 20s
+      retries: 15
+      start_period: 30s
+
   config-service:
     build:
       context: ./config-service
@@ -38,6 +56,7 @@ services:
       - kafka
       - minio
       - metadata-service
+      - service-registry
     healthcheck:
       test: [ "CMD-SHELL", "curl -f http://localhost:8000/actuator/health || exit 1" ]
       interval: 30s
@@ -60,6 +79,7 @@ services:
       - MINIO_URL=http://minio:9000
     depends_on:
       - config-service
+      - service-registry
       - db
       - redis
       - minio
@@ -80,6 +100,7 @@ services:
       - SPRING_PROFILES_ACTIVE=docker
     depends_on:
       - config-service
+      - service-registry
       - kafka
       - minio
       - elasticsearch

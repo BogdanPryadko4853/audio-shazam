@@ -48,6 +48,7 @@ class AudioIngestionControllerIT {
     @DynamicPropertySource
     static void minioProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.cloud.config.enabled", () -> false);
+        registry.add("spring.cloud.bootstrap.enabled", () -> false);
         registry.add("spring.cloud.config.import-check.enabled", () -> false);
         registry.add("minio.endpoint", () -> "http://localhost:9000");
         registry.add("minio.access-key", () -> "test-access-key");

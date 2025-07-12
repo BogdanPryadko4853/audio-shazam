@@ -11,3 +11,10 @@ metadata:
   service:
     url: http://metadata-service:8010/api/v1
 
+eureka:
+  client:
+    service-url:
+      defaultZone: http://service-registry:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
