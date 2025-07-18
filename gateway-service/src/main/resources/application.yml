@@ -1,27 +1,40 @@
+server:
+  port: 8081
+
+springdoc:
+  swagger-ui:
+    urls:
+      - name: Gateway
+        url: /v3/api-docs
+      - name: Metadata Service
+        url: /metadata-service/v3/api-docs
+      - name: Ingestion Service
+        url: /ingestion-service/v3/api-docs
+      - name: Fingerprint Service
+        url: /fingerprint-service/v3/api-docs
+    path: /swagger-ui.html
+
 spring:
   application:
-    name: gateway-service
-
+    name: audio-gateway
+  profiles:
+    active: local
+  config:
+    import: "optional:configserver:${CONFIG_SERVER_URI:http://localhost:8888}"
   cloud:
-    gateway:
-      discovery:
-        locator:
-          enabled: true
-      routes:
-        - id: audio-ingestion
-          uri: lb://audio-ingestion-service
-          predicates:
-            - Path=/api/v1/tracks/**
-          filters:
-            - name: CircuitBreaker
-              args:
-                name: ingestionFallback
-                fallbackUri: forward:/fallback/ingestion
+    config:
+      profile: ${SPRING_PROFILES_ACTIVE:local}
+      fail-fast: true
+      retry:
+        initial-interval: 1000
+        max-interval: 2000
+        max-attempts: 3
+      request:
+        read-timeout: 10000
+        connect-timeout: 5000
 
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
-
-server:
-  port: 8080
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics

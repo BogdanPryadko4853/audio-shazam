@@ -1,7 +1,7 @@
 package com.audio.audiometadataservice.controller;
 
-import com.audio.audiometadataservice.dto.TrackRequest;
-import com.audio.audiometadataservice.dto.TrackResponse;
+import com.audio.audiometadataservice.dto.request.TrackRequest;
+import com.audio.audiometadataservice.dto.response.TrackResponse;
 import com.audio.audiometadataservice.service.TrackService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

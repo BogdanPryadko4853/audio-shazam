@@ -2,6 +2,24 @@ version: '3.8'
 
 services:
 
+  gateway-service:
+    build:
+      context: ./gateway-service
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - CONFIG_SERVER_URI=http://config-service:8888
+    depends_on:
+      - config-service
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8761/actuator/health && curl -f http://localhost:8761/eureka/apps || exit 1" ]
+      interval: 10s
+      timeout: 20s
+      retries: 15
+      start_period: 30s
+
   service-registry:
     build:
       context: ./service-registry
@@ -134,8 +152,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+
 
   redis:
     image: redis:7.2-alpine
@@ -207,7 +224,6 @@ services:
 volumes:
   esdata:
     driver: local
-  postgres_data:
   redis_data:
   minio_data:
   kafka_data:

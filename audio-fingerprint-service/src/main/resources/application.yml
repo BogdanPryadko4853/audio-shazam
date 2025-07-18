@@ -14,3 +14,12 @@ spring:
       request:
         read-timeout: 10000
         connect-timeout: 5000
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+    doc-expansion: none
+  api-docs:
+    path: /v3/api-docs

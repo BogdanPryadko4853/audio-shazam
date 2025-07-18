@@ -2,11 +2,8 @@ package com.audio.audiometadataservice.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-
 @Entity
 @Table(name = "tracks")
 @Getter
@@ -19,14 +16,9 @@ public class Track {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
     private String title;
-
-    @Column(nullable = false)
     private String artist;
-
-    @Column(nullable = false, unique = true)
     private String audioKey;
-
     private Integer duration;
+    private LocalDateTime createdAt;
 }

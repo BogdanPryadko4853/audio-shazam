@@ -1,6 +1,7 @@
 package com.audio.audioingestionservice.service;
 
-import com.audio.audioingestionservice.model.AudioUploadEvent;
+import com.audio.audioingestionservice.messaging.event.AudioUploadEvent;
+import com.audio.audioingestionservice.messaging.producer.AudioEventProducer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;

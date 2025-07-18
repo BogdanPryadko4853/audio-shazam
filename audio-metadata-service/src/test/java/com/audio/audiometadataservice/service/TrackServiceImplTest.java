@@ -1,10 +1,11 @@
 package com.audio.audiometadataservice.service;
 
-import com.audio.audiometadataservice.dto.TrackRequest;
-import com.audio.audiometadataservice.dto.TrackResponse;
+import com.audio.audiometadataservice.dto.request.TrackRequest;
+import com.audio.audiometadataservice.dto.response.TrackResponse;
 import com.audio.audiometadataservice.entity.Track;
 import com.audio.audiometadataservice.exception.TrackNotFoundException;
 import com.audio.audiometadataservice.repository.TrackRepository;
+import com.audio.audiometadataservice.service.impl.TrackServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

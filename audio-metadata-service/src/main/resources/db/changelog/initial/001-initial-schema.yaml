@@ -1,0 +1,38 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-tracks-table
+      author: your_name
+      changes:
+        - createTable:
+            tableName: tracks
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: title
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: artist
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: audio_key
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: duration
+                  type: INTEGER
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP

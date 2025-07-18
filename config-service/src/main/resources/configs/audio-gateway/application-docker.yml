@@ -1,0 +1,16 @@
+spring:
+  cloud:
+    gateway:
+      server:
+        webflux:
+          discovery:
+            locator:
+              enabled: true
+              lower-case-service-id: true
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://service-registry:8761/eureka/
+    fetch-registry: true
+    register-with-eureka: true

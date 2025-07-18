@@ -3,6 +3,7 @@ package com.audio.audiofingerprintservice.service;
 import com.audio.audiofingerprintservice.exception.FingerprintException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
 import javax.sound.sampled.*;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -12,8 +13,6 @@ import java.nio.ByteBuffer;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.List;
-
-
 
 @Service
 @Slf4j
@@ -71,7 +70,6 @@ public class SimpleFingerprintService {
         try {
             log.debug("Input audio size: {} bytes", audioData.length);
 
-            // Декодируем MP3 → PCM (если нужно)
             if (isMp3(audioData)) {
                 log.debug("Detected MP3, converting to PCM...");
                 audioData = convertMp3ToPcm(audioData);
@@ -82,13 +80,12 @@ public class SimpleFingerprintService {
             normalizeSamples(samples);
             return extractPeaks(samples);
         } catch (Exception e) {
-            log.error("Failed to process audio", e);  // Логируем ошибку
+            log.error("Failed to process audio", e);
             throw new FingerprintException("Fingerprint generation failed", e);
         }
     }
 
     private boolean isMp3(byte[] data) {
-        // Простая проверка по сигнатуре MP3 (ID3 или FF FB)
         return data.length > 2 && (data[0] == (byte) 0xFF && data[1] == (byte) 0xFB)
                 || (data[0] == 'I' && data[1] == 'D' && data[2] == '3');
     }

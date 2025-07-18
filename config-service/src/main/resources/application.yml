@@ -7,7 +7,15 @@ spring:
   cloud:
     config:
       server:
+        git:
+          uri: https://github.com/${GITHUB_USERNAME}/your-config-repo.git
+          search-paths: |
+            configs/{application}
+            username: ${GITHUB_USERNAME}
+            password: ${GITHUB_TOKEN}
+            clone-on-start: true
+            force-pull: true
+            default-label: main
         native:
           search-locations:
-            - classpath:/configs/
-          basedir: ./configs
+            - classpath:/configs/{application}

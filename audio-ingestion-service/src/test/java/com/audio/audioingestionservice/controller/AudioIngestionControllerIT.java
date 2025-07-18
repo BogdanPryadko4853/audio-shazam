@@ -1,9 +1,10 @@
 package com.audio.audioingestionservice.controller;
 
-import com.audio.audioingestionservice.dto.AudioUploadResponse;
-import com.audio.audioingestionservice.dto.TrackRequest;
+import com.audio.audioingestionservice.client.MetadataServiceClient;
+import com.audio.audioingestionservice.dto.response.AudioUploadResponse;
+import com.audio.audioingestionservice.dto.request.TrackRequest;
 import com.audio.audioingestionservice.model.TrackMetadata;
-import com.audio.audioingestionservice.service.AudioEventProducer;
+import com.audio.audioingestionservice.messaging.producer.AudioEventProducer;
 import com.audio.audioingestionservice.service.AudioStorageService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
