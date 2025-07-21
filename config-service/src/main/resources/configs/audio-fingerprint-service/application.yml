@@ -8,6 +8,9 @@ management:
       show-details: always
     loggers:
       enabled: true
+  metrics:
+    tags:
+      application: audio-fingerprint-service
 
 spring:
   kafka:

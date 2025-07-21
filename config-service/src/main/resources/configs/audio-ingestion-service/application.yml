@@ -8,7 +8,9 @@ management:
       show-details: always
     loggers:
       enabled: true
-
+  metrics:
+    tags:
+      application: audio-ingestion-service
 spring:
   kafka:
     producer:

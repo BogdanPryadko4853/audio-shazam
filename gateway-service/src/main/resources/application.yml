@@ -1,6 +1,17 @@
 server:
   port: 8081
 
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, prometheus, metrics
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+
 springdoc:
   swagger-ui:
     urls:
@@ -33,8 +44,3 @@ spring:
         read-timeout: 10000
         connect-timeout: 5000
 
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health, info, metrics

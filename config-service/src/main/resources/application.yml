@@ -1,6 +1,17 @@
 server:
   port: 8888
 
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, prometheus, metrics
+  metrics:
+    tags:
+      application: config-service
+
+
 spring:
   profiles:
     active: native

@@ -1,0 +1,34 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'gateway-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['gateway-service:8081']
+
+  - job_name: 'audio-ingestion-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['audio-ingestion-service:8000']
+
+  - job_name: 'metadata-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['metadata-service:8010']
+
+  - job_name: 'fingerprint-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['fingerprint-service:8080']
+
+  - job_name: 'service-registry'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['service-registry:8761']
+
+  - job_name: 'config-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['config-service:8888']
