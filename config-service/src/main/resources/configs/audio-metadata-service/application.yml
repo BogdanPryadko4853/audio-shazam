@@ -1,3 +1,14 @@
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,loggers
+  endpoint:
+    health:
+      show-details: always
+    loggers:
+      enabled: true
+
 spring:
   liquibase:
     enabled: true

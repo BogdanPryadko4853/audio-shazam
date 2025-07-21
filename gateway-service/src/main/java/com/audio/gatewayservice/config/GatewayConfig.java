@@ -14,19 +14,19 @@ public class GatewayConfig {
         return builder.routes()
                 // Маршруты для API
                 .route("metadata-api", r -> r.path("/api/v1/tracks/**")
-                        .uri("lb://metadata-service"))
+                        .uri("lb://AUDIO-METADATA-SERVICE"))
                 .route("ingestion-api", r -> r.path("/api/v1/audio/**")
-                        .uri("lb://ingestion-service"))
+                        .uri("lb://AUDIO-INGESTION-SERVICE"))
                 .route("fingerprint-api", r -> r.path("/api/v1/fingerprints/**")
-                        .uri("lb://fingerprint-service"))
+                        .uri("lb://AUDIO-FINGERPRINT-SERVICE"))
                 .route("metadata-docs", r -> r.path("/metadata-service/v3/api-docs/**")
-                        .uri("lb://metadata-service"))
+                        .uri("lb://AUDIO-METADATA-SERVICE"))
                 .route("ingestion-docs", r -> r.path("/ingestion-service/v3/api-docs/**")
-                        .uri("lb://ingestion-service"))
+                        .uri("lb://AUDIO-INGESTION-SERVICE"))
                 .route("fingerprint-docs", r -> r.path("/fingerprint-service/v3/api-docs/**")
-                        .uri("lb://fingerprint-service"))
+                        .uri("lb://AUDIO-FINGERPRINT-SERVICE"))
                 .route("swagger-ui", r -> r.path("/swagger-ui.html", "/webjars/**")
-                        .uri("lb://gateway-service"))
+                        .uri("lb://AUDIO-GATEWAY"))
                 .build();
     }
 }

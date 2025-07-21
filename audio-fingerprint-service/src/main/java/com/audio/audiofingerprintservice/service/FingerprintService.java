@@ -91,7 +91,7 @@ public class FingerprintService {
                                                             .params("query_vector", JsonData.of(queryVectorDouble))
                                                     )
                                             )
-                                            .minScore(1.2f)
+                                            .minScore(0.8f)
                                     )
                             ),
                     AudioFingerprint.class);

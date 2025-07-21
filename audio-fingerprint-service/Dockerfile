@@ -24,6 +24,7 @@ RUN apt-get update && \
 WORKDIR /app
 # Копируем JAR из этапа сборки
 COPY --from=builder /workspace/target/*.jar app.jar
+COPY src/main/resources/logback-spring.xml /app/config/
 
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
