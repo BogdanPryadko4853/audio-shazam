@@ -5,9 +5,9 @@ services:
   logstash:
     image: logstash:8.6.0
     ports:
-      - "5044:5044" # для Filebeat (если будете использовать)
-      - "5000:5000/tcp" # для прямого TCP-ввода от приложений
-      - "5000:5000/udp" # для UDP
+      - "5044:5044"
+      - "5000:5000/tcp"
+      - "5000:5000/udp"
     environment:
       - LS_JAVA_OPTS=-Xms512m -Xmx512m
     volumes:

@@ -30,37 +30,43 @@ public class FingerprintService {
     private final MetadataServiceClient metadataServiceClient;
 
     private static final String INDEX_NAME = "audio_fingerprints";
+    private static final int FINGERPRINT_SIZE = 512;
 
     public List<Float> generateFingerprint(byte[] audioData) throws FingerprintException {
         return simpleFingerprintService.generateFingerprint(audioData);
     }
 
     public void saveFingerprint(AudioFingerprint fingerprint) throws IOException {
+        // Убедимся, что размер fingerprint правильный
+        if (fingerprint.getFingerprint().size() != FINGERPRINT_SIZE) {
+            throw new FingerprintException("Fingerprint must have exactly " + FINGERPRINT_SIZE + " elements");
+        }
+
         IndexResponse response = esClient.index(i -> i
                 .index(INDEX_NAME)
                 .id(fingerprint.getTrackId())
                 .document(fingerprint)
         );
         esClient.indices().refresh(r -> r.index(INDEX_NAME));
+        log.info("Saved fingerprint for track {} with version {}", fingerprint.getTrackId(), response.version());
     }
 
     public FingerprintMatchResponse searchMatch(MultipartFile audioFile) {
+        log.info("Starting search for audio file: {}", audioFile.getOriginalFilename());
         try {
             validateAudioFile(audioFile);
             byte[] audioData = audioFile.getBytes();
+            log.debug("Audio data size: {} bytes", audioData.length);
+
             List<Float> queryVector = generateFingerprint(audioData);
+            log.debug("Generated fingerprint vector size: {}", queryVector.size());
 
             SearchResponse<AudioFingerprint> response = executeElasticsearchQuery(queryVector);
-            return convertToBestMatchResponse(response);
+            log.info("Found {} matches", response.hits().hits().size());
 
-        } catch (FingerprintException e) {
-            log.error("Fingerprint processing error", e);
-            throw e;
-        } catch (IOException e) {
-            log.error("File reading error", e);
-            throw new FingerprintException("Failed to read audio file", e);
+            return convertToBestMatchResponse(response);
         } catch (Exception e) {
-            log.error("Unexpected error during search", e);
+            log.error("Search failed for file: {}", audioFile.getOriginalFilename(), e);
             throw new FingerprintException("Audio search failed", e);
         }
     }
@@ -76,9 +82,10 @@ public class FingerprintService {
 
     private SearchResponse<AudioFingerprint> executeElasticsearchQuery(List<Float> queryVector) {
         try {
-            List<Double> queryVectorDouble = queryVector.stream()
-                    .map(Float::doubleValue)
-                    .collect(Collectors.toList());
+            float[] queryVectorArray = new float[queryVector.size()];
+            for (int i = 0; i < queryVector.size(); i++) {
+                queryVectorArray[i] = queryVector.get(i);
+            }
 
             return esClient.search(s -> s
                             .index(INDEX_NAME)
@@ -88,12 +95,12 @@ public class FingerprintService {
                                             .script(sc -> sc
                                                     .inline(i -> i
                                                             .source("cosineSimilarity(params.query_vector, 'fingerprint') + 1.0")
-                                                            .params("query_vector", JsonData.of(queryVectorDouble))
+                                                            .params("query_vector", JsonData.of(queryVectorArray))
                                                     )
                                             )
-                                            .minScore(0.8f)
+                                            .minScore(1.5f)
                                     )
-                            ),
+                            ).size(5),
                     AudioFingerprint.class);
         } catch (IOException e) {
             log.error("Elasticsearch query failed", e);

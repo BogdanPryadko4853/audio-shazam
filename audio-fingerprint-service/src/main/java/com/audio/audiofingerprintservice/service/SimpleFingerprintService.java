@@ -91,29 +91,29 @@ public class SimpleFingerprintService {
     }
 
     private byte[] convertMp3ToPcm(byte[] mp3Data) throws UnsupportedAudioFileException, IOException {
-        AudioInputStream mp3Stream = AudioSystem.getAudioInputStream(
-                new ByteArrayInputStream(mp3Data)
-        );
+        try (AudioInputStream mp3Stream = AudioSystem.getAudioInputStream(new ByteArrayInputStream(mp3Data))) {
+            AudioFormat baseFormat = mp3Stream.getFormat();
+            log.info("Input format: {}", baseFormat);
 
-        AudioFormat pcmFormat = new AudioFormat(
-                AudioFormat.Encoding.PCM_SIGNED,
-                44100,      // Sample rate
-                16,         // Sample size in bits
-                1,          // Channels (mono)
-                2,          // Frame size (bytes)
-                44100,      // Frame rate
-                false       // Big-endian
-        );
+            AudioFormat targetFormat = new AudioFormat(
+                    AudioFormat.Encoding.PCM_SIGNED,
+                    44100,
+                    16,
+                    1,
+                    2,
+                    44100,
+                    false);
 
-        AudioInputStream pcmStream = AudioSystem.getAudioInputStream(pcmFormat, mp3Stream);
-        ByteArrayOutputStream pcmOut = new ByteArrayOutputStream();
+            try (AudioInputStream pcmStream = AudioSystem.getAudioInputStream(targetFormat, mp3Stream);
+                 ByteArrayOutputStream out = new ByteArrayOutputStream()) {
 
-        byte[] buffer = new byte[4096];
-        int bytesRead;
-        while ((bytesRead = pcmStream.read(buffer)) != -1) {
-            pcmOut.write(buffer, 0, bytesRead);
+                byte[] buffer = new byte[4096];
+                int read;
+                while ((read = pcmStream.read(buffer)) >= 0) {
+                    out.write(buffer, 0, read);
+                }
+                return out.toByteArray();
+            }
         }
-
-        return pcmOut.toByteArray();
     }
 }

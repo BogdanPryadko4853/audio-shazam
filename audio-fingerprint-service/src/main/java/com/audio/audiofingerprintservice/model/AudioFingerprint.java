@@ -7,6 +7,8 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 
 @Data
 @Builder
@@ -14,6 +16,7 @@ public class AudioFingerprint {
     private String trackId;
     private String title;
     private String artist;
+    @Field(type = FieldType.Dense_Vector, dims = 512)
     private List<Float> fingerprint;
 
     @JsonCreator
