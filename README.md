@@ -99,9 +99,6 @@ graph TD
 - Docker Compose 2.0+
 - 8GB+ RAM recommended
 
-Вот красивый, отформатированный Markdown текст, который можно скопировать одним кликом:
-
-```markdown
 ## 🚀 Quick Start
 
 1. **Clone the repository**:
