@@ -41,39 +41,39 @@
 ```mermaid
 graph TD
     %% ========== Clients Section ==========
-    A[📱 Client] --> B[🚪 API Gateway]
+    A[<font color="#000000">📱 Client</font>] --> B[<font color="#000000">🚪 API Gateway</font>]
     
     %% ========== Main Services Section ==========
-    subgraph "Microservices Layer"
-        B --> C[📤 Ingestion Service]
-        B --> D[📝 Metadata Service]
-        B --> E[🔍 Fingerprint Service]
+    subgraph "<font color="#000000">Microservices Layer</font>"
+        B --> C[<font color="#000000">📤 Ingestion Service</font>]
+        B --> D[<font color="#000000">📝 Metadata Service</font>]
+        B --> E[<font color="#000000">🔍 Fingerprint Service</font>]
     end
     
     %% ========== Data Stores Section ==========
-    subgraph "Data Layer"
-        F[🪣 MinIO]
-        G[📨 Kafka]
-        H[🐘 PostgreSQL]
-        J[🔴 Redis]
-        I[🔎 Elasticsearch]
+    subgraph "<font color="#000000">Data Layer</font>"
+        F[<font color="#000000">🪣 MinIO</font>]
+        G[<font color="#000000">📨 Kafka</font>]
+        H[<font color="#000000">🐘 PostgreSQL</font>]
+        J[<font color="#000000">🔴 Redis</font>]
+        I[<font color="#000000">🔎 Elasticsearch</font>]
     end
     
     %% ========== Observability Section ==========
-    subgraph "Observability"
-        subgraph "Metrics"
-            K[📊 Prometheus]
-            L[📈 Grafana]
+    subgraph "<font color="#000000">Observability</font>"
+        subgraph "<font color="#000000">Metrics</font>"
+            K[<font color="#000000">📊 Prometheus</font>]
+            L[<font color="#000000">📈 Grafana</font>]
         end
         
-        subgraph "Tracing"
-            M[🔍 Zipkin]
+        subgraph "<font color="#000000">Tracing</font>"
+            M[<font color="#000000">🔍 Zipkin</font>]
         end
         
-        subgraph "Logging"
-            N[🪵 Logstash]
-            O[📄 Elasticsearch]
-            P[📊 Kibana]
+        subgraph "<font color="#000000">Logging</font>"
+            N[<font color="#000000">🪵 Logstash</font>]
+            O[<font color="#000000">📄 Elasticsearch</font>]
+            P[<font color="#000000">📊 Kibana</font>]
         end
     end
     
@@ -86,25 +86,25 @@ graph TD
     G --> E
     
     %% ========== Observability Connections ==========
-    C & D & E -->|Metrics| K
+    C & D & E -->|<font color="#000000">Metrics</font>| K
     K --> L
     
-    C & D & E -->|Traces| M
+    C & D & E -->|<font color="#000000">Traces</font>| M
     
-    C & D & E -->|Logs| N
+    C & D & E -->|<font color="#000000">Logs</font>| N
     N --> O
     O --> P
     
     %% ========== Styling ==========
-    classDef client fill:#f9f,stroke:#333,stroke-width:2px;
-    classDef gateway fill:#7af,stroke:#333,stroke-width:2px;
-    classDef service fill:#aef,stroke:#333,stroke-width:2px, rx:5, ry:5;
-    classDef storage fill:#fea,stroke:#333,stroke-width:2px;
-    classDef queue fill:#afa,stroke:#333,stroke-width:2px;
-    classDef metrics fill:#f88,stroke:#333,stroke-width:2px;
-    classDef tracing fill:#8f8,stroke:#333,stroke-width:2px;
-    classDef logging fill:#88f,stroke:#333,stroke-width:2px;
-    classDef cluster fill:none,stroke-dasharray:5,stroke:#aaa;
+    classDef client fill:#f9f,stroke:#333,stroke-width:2px,color:#000000;
+    classDef gateway fill:#7af,stroke:#333,stroke-width:2px,color:#000000;
+    classDef service fill:#aef,stroke:#333,stroke-width:2px,color:#000000,rx:5,ry:5;
+    classDef storage fill:#fea,stroke:#333,stroke-width:2px,color:#000000;
+    classDef queue fill:#afa,stroke:#333,stroke-width:2px,color:#000000;
+    classDef metrics fill:#f88,stroke:#333,stroke-width:2px,color:#000000;
+    classDef tracing fill:#8f8,stroke:#333,stroke-width:2px,color:#000000;
+    classDef logging fill:#88f,stroke:#333,stroke-width:2px,color:#000000;
+    classDef cluster fill:none,stroke-dasharray:5,stroke:#aaa,color:#000000;
     
     class A client;
     class B gateway;
@@ -116,7 +116,6 @@ graph TD
     class N,P logging;
     
     %% ========== Layout Improvements ==========
-    %% Vertical alignment
     linkStyle 0 stroke:#666,stroke-width:2px;
     linkStyle 1,2,3 stroke:#666,stroke-width:2px;
     linkStyle 4,5,6,7,8 stroke:#666,stroke-width:2px;
