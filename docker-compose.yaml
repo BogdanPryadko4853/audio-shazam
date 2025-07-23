@@ -2,6 +2,19 @@ version: '3.8'
 
 services:
 
+
+  zipkin:
+    image: openzipkin/zipkin
+    ports:
+      - "9411:9411"
+    environment:
+      - STORAGE_TYPE=mem
+    depends_on:
+      - gateway-service
+      - audio-ingestion-service
+      - metadata-service
+      - fingerprint-service
+
   prometheus:
     image: prom/prometheus
     ports:
